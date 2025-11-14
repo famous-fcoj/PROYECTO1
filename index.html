@@ -1,0 +1,549 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Orden de Trabajo - CONMETAL</title>
+<style>
+  /* Tus estilos existentes... */
+  html,body{height:100%;margin:0;padding:0;font-family: 'Arial', sans-serif;background:#eee}
+  .sheet{width:794px;margin:18px auto;border:3px solid #2b6f9a;background:#fff;padding:6px;box-sizing:border-box}
+  table{border-collapse:collapse;width:100%;table-layout:fixed}
+  td, th{border:1px solid #1f3b4b;padding:4px;font-size:12px;vertical-align:middle}
+  .hdr-top{background:linear-gradient(#cfeefc,#c2e6fb);height:56px}
+  .logo {width:70px;height:52px;background:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;color:#0b5370}
+  .title {font-size:24px;font-weight:800;color:#083e55;text-align:center}
+  .numero {background:#bfe6fb;text-align:center;font-weight:800;font-size:14px}
+  .numero input{border:0;background:transparent;width:100%;text-align:center;font-weight:800}
+  .label{background:#f2f9fd;font-weight:700;color:#052e3a}
+  .input{background:#fff}
+  .yellow{background:#fff59d}
+  .green{background:#b7e2a0}
+  .section{background:#cfe9f9;text-align:center;font-weight:800}
+  .item{width:36px;text-align:center;background:#f6fbfd;font-weight:700}
+  .w12{width:12%}
+  .w18{width:18%}
+  .w25{width:25%}
+  .w40{width:40%}
+  input[type=text], input[type=date], textarea{width:100%;border:0;padding:3px;background:transparent;font-size:12px}
+  textarea{min-height:56px}
+  .obs{min-height:80px}
+  .thick{border-top:3px solid #1f3b4b}
+  .no-border{border:none}
+  .small-label{font-weight:700;background:#f2f9fd}
+  
+  /* Nuevos estilos para el botón y validación */
+  .submit-btn {
+    background: #4CAF50;
+    color: white; 
+    padding: 12px 30px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    margin: 20px auto;
+    display: block;
+  }
+  .submit-btn:hover {
+    background: #45a049;
+  }
+  .submit-btn:disabled {
+    background: #cccccc;
+    cursor: not-allowed;
+  }
+  .error {
+    border: 1px solid red !important;
+    background-color: #ffe6e6 !important;
+  }
+  .error-message {
+    color: red;
+    font-size: 10px;
+    display: none;
+  }
+</style>
+</head>
+<body>
+<script type="module" src="/src/main.jsx"></script>
+  <div class="sheet">
+    <form id="ordenTrabajoForm">
+      <table>
+        <!-- Header y campos existentes... -->
+        <tr>
+          <td colspan="4" class="hdr-top no-border">
+            <table style="width:100%;border-collapse:collapse;height:56px;">
+              <tr>
+                <td style="width:11%;border:none;padding:6px">
+                  <div class="logo">CONMETAL</div>
+                </td>
+                <td style="width:70%;border:none;padding:6px">
+                  <div class="title">ORDEN DE TRABAJO</div>
+                </td>
+<td style="width:19%;border-left:3px solid #1f3b4b;padding:6px">
+    <div style="display:flex;flex-direction:column;height:100%;justify-content:center">
+        <div style="font-weight:700;color:#083e55">Nº: 
+            <span style="font-size:10px; cursor:pointer; margin-left:5px;" 
+                  onclick="regenerarNumeroOT()" title="Generar nuevo número">
+                🔄
+            </span>
+        </div>
+        <input type="text" id="numeroOT" name="numeroOT" 
+               style="font-weight:800;font-size:14px;border:0;background:transparent;text-align:center;margin-top:4px" 
+               readonly>
+        <div style="font-size:9px; color:#666; text-align:center">
+            <span onclick="toggleEditarNumeroOT(this)" 
+                  style="cursor:pointer">
+                🔒 Bloqueado
+            </span>
+        </div>
+        <div class="error-message" id="error-numeroOT">Número OT requerido</div>
+    </div>
+</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- Primera fila datos -->
+        <tr>
+          <td class="label" style="width:12%">FECHA:</td>
+          <td style="width:38%">
+            <input type="date" id="fechaCreacion" name="fechaCreacion" required>
+            <div class="error-message" id="error-fechaCreacion">Fecha requerida</div>
+          </td>
+          <td class="label" style="width:12%">EQUIPO/MAQUINA:</td>
+          <td class="yellow" style="width:38%">
+            <input type="text" id="equipoMaquina" name="equipoMaquina" placeholder="Ingrese equipo" required>
+            <div class="error-message" id="error-equipoMaquina">Equipo requerido</div>
+          </td>
+        </tr>
+
+        <tr>
+          <td class="label">DESCRIPCION:</td>
+          <td colspan="2">
+            <input type="text" id="descripcion" name="descripcion" placeholder="Descripción del trabajo" required>
+            <div class="error-message" id="error-descripcion">Descripción requerida</div>
+          </td>
+          <td class="label">MARCA:</td>
+        </tr>
+
+        <tr>
+          <td class="label">UBICACIÓN:</td>
+          <td>
+            <input type="text" id="ubicacion" name="ubicacion" placeholder="Ubicación del equipo" required>
+            <div class="error-message" id="error-ubicacion">Ubicación requerida</div>
+          </td>
+          <td class="label">MODELO:</td>
+          <td class="yellow">
+            <input type="text" id="modelo" name="modelo" placeholder="Modelo del equipo" required>
+            <div class="error-message" id="error-modelo">Modelo requerido</div>
+          </td>
+        </tr>
+
+        <tr>
+          <td class="label">TIPO DE ACCION:</td>
+          <td>
+            <input type="text" id="tipoAccion" name="tipoAccion" placeholder="Ej: Correctivo, Preventivo" required>
+            <div class="error-message" id="error-tipoAccion">Tipo de acción requerido</div>
+          </td>
+          <td class="label">ODOMETRO: (H) (Km)</td>
+          <td>
+            <input type="text" id="odometro" name="odometro" placeholder="Solo números" pattern="[0-9]*" required>
+            <div class="error-message" id="error-odometro">Solo se permiten números</div>
+          </td>
+        </tr>
+
+        <tr>
+          <td class="label">RESPONSABLE DE EJECUCION</td>
+          <td class="green">
+            <input type="text" id="responsableEjecucion" name="responsableEjecucion" placeholder="Nombre del responsable" required>
+            <div class="error-message" id="error-responsableEjecucion">Responsable requerido</div>
+          </td>
+          <td class="label">FECHA PLAN.</td>
+          <td>
+            <input type="date" id="fechaPlanificada" name="fechaPlanificada" required>
+            <div class="error-message" id="error-fechaPlanificada">Fecha planificada requerida</div>
+          </td>
+        </tr>
+
+        <tr>
+          <td class="label">SUPERVISOR</td>
+          <td colspan="3">
+            <input type="text" id="supervisor" name="supervisor" placeholder="Nombre del supervisor" required>
+            <div class="error-message" id="error-supervisor">Supervisor requerido</div>
+          </td>
+        </tr>
+
+        <!-- TAREAS A EJECUTAR -->
+        <tr><td colspan="4" class="section thick">TAREAS A EJECUTAR</td></tr>
+
+        <tr>
+          <td class="item">ITEM</td>
+          <td class="w40">DETALLE</td>
+          <td class="w25">TIEMPO ESTIMADO</td>
+          <td class="w25">TIEMPO REAL</td>
+        </tr>
+
+        <!-- 5 filas tareas -->
+        <tr>
+          <td class="item">1</td>
+          <td><input type="text" name="tarea1" placeholder="Detalle de tarea"></td>
+          <td><input type="text" name="tiempoEstimado1" placeholder="Minutos" pattern="[0-9]*"></td>
+          <td><input type="text" name="tiempoReal1" placeholder="Minutos" pattern="[0-9]*"></td>
+        </tr>
+        <tr>
+          <td class="item">2</td>
+          <td><input type="text" name="tarea2" placeholder="Detalle de tarea"></td>
+          <td><input type="text" name="tiempoEstimado2" placeholder="Minutos" pattern="[0-9]*"></td>
+          <td><input type="text" name="tiempoReal2" placeholder="Minutos" pattern="[0-9]*"></td>
+        </tr>
+        <tr>
+          <td class="item">3</td>
+          <td><input type="text" name="tarea3" placeholder="Detalle de tarea"></td>
+          <td><input type="text" name="tiempoEstimado3" placeholder="Minutos" pattern="[0-9]*"></td>
+          <td><input type="text" name="tiempoReal3" placeholder="Minutos" pattern="[0-9]*"></td>
+        </tr>
+        <tr>
+          <td class="item">4</td>
+          <td><input type="text" name="tarea4" placeholder="Detalle de tarea"></td>
+          <td><input type="text" name="tiempoEstimado4" placeholder="Minutos" pattern="[0-9]*"></td>
+          <td><input type="text" name="tiempoReal4" placeholder="Minutos" pattern="[0-9]*"></td>
+        </tr>
+        <tr>
+          <td class="item">5</td>
+          <td><input type="text" name="tarea5" placeholder="Detalle de tarea"></td>
+          <td><input type="text" name="tiempoEstimado5" placeholder="Minutos" pattern="[0-9]*"></td>
+          <td><input type="text" name="tiempoReal5" placeholder="Minutos" pattern="[0-9]*"></td>
+        </tr>
+
+        <!-- REPUESTOS REQUERIDOS -->
+        <tr><td colspan="4" class="section thick">REPUESTOS REQUERIDOS</td></tr>
+
+        <tr>
+          <td class="item">ITEM</td>
+          <td class="w25">CODIGO</td>
+          <td class="w40">DESCRIPCION</td>
+          <td class="w35">CANTIDAD</td>
+        </tr>
+
+        <tr>
+          <td class="item">1</td>
+          <td class="green"><input type="text" name="repuestoCodigo1" placeholder="Código"></td>
+          <td class="yellow"><input type="text" name="repuestoDesc1" placeholder="Descripción"></td>
+          <td><input type="text" name="repuestoCantidad1" placeholder="Cantidad" pattern="[0-9]*"></td>
+        </tr>
+        <tr>
+          <td class="item">2</td>
+          <td class="green"><input type="text" name="repuestoCodigo2" placeholder="Código"></td>
+          <td class="yellow"><input type="text" name="repuestoDesc2" placeholder="Descripción"></td>
+          <td><input type="text" name="repuestoCantidad2" placeholder="Cantidad" pattern="[0-9]*"></td>
+        </tr>
+        <tr>
+          <td class="item">3</td>
+          <td class="green"><input type="text" name="repuestoCodigo3" placeholder="Código"></td>
+          <td class="yellow"><input type="text" name="repuestoDesc3" placeholder="Descripción"></td>
+          <td><input type="text" name="repuestoCantidad3" placeholder="Cantidad" pattern="[0-9]*"></td>
+        </tr>
+        <tr>
+          <td class="item">4</td>
+          <td class="green"><input type="text" name="repuestoCodigo4" placeholder="Código"></td>
+          <td class="yellow"><input type="text" name="repuestoDesc4" placeholder="Descripción"></td>
+          <td><input type="text" name="repuestoCantidad4" placeholder="Cantidad" pattern="[0-9]*"></td>
+        </tr>
+        <tr>
+          <td class="item">5</td>
+          <td class="green"><input type="text" name="repuestoCodigo5" placeholder="Código"></td>
+          <td class="yellow"><input type="text" name="repuestoDesc5" placeholder="Descripción"></td>
+          <td><input type="text" name="repuestoCantidad5" placeholder="Cantidad" pattern="[0-9]*"></td>
+        </tr>
+
+        <!-- INSUMOS REQUERIDOS -->
+        <tr><td colspan="4" class="section thick">INSUMOS REQUERIDOS</td></tr>
+
+        <tr>
+          <td class="item">ITEM</td>
+          <td class="w25">CODIGO</td>
+          <td class="w40">DESCRIPCION</td>
+          <td class="w35">CANTIDAD</td>
+        </tr>
+
+        <tr>
+          <td class="item">1</td>
+          <td class="green"><input type="text" name="insumoCodigo1" placeholder="Código"></td>
+          <td class="yellow"><input type="text" name="insumoDesc1" placeholder="Descripción"></td>
+          <td><input type="text" name="insumoCantidad1" placeholder="Cantidad" pattern="[0-9]*"></td>
+        </tr>
+        <tr>
+          <td class="item">2</td>
+          <td class="green"><input type="text" name="insumoCodigo2" placeholder="Código"></td>
+          <td class="yellow"><input type="text" name="insumoDesc2" placeholder="Descripción"></td>
+          <td><input type="text" name="insumoCantidad2" placeholder="Cantidad" pattern="[0-9]*"></td>
+        </tr>
+        <tr>
+          <td class="item">3</td>
+          <td class="green"><input type="text" name="insumoCodigo3" placeholder="Código"></td>
+          <td class="yellow"><input type="text" name="insumoDesc3" placeholder="Descripción"></td>
+          <td><input type="text" name="insumoCantidad3" placeholder="Cantidad" pattern="[0-9]*"></td>
+        </tr>
+        <tr>
+          <td class="item">4</td>
+          <td class="green"><input type="text" name="insumoCodigo4" placeholder="Código"></td>
+          <td class="yellow"><input type="text" name="insumoDesc4" placeholder="Descripción"></td>
+          <td><input type="text" name="insumoCantidad4" placeholder="Cantidad" pattern="[0-9]*"></td>
+        </tr>
+        <tr>
+          <td class="item">5</td>
+          <td class="green"><input type="text" name="insumoCodigo5" placeholder="Código"></td>
+          <td class="yellow"><input type="text" name="insumoDesc5" placeholder="Descripción"></td>
+          <td><input type="text" name="insumoCantidad5" placeholder="Cantidad" pattern="[0-9]*"></td>
+        </tr>
+
+        <!-- FINALIZACION -->
+        <tr><td colspan="4" class="section thick">FINALIZACION DE TRABAJO</td></tr>
+
+        <tr>
+          <td class="small-label">REVISADO POR</td>
+          <td><input type="text" id="revisadoPor" name="revisadoPor" placeholder="Nombre"></td>
+          <td class="small-label">FECHA</td>
+          <td><input type="date" id="fechaRevision" name="fechaRevision"></td>
+        </tr>
+
+        <tr>
+          <td class="small-label">FIRMA</td>
+          <td></td>
+          <td class="small-label">RECIBIDO POR</td>
+          <td><input type="text" id="recibidoPor" name="recibidoPor" placeholder="Nombre"></td>
+        </tr>
+
+        <tr>
+          <td class="small-label" colspan="4">OBSERVACIONES</td>
+        </tr>
+        <tr>
+          <td colspan="4" class="obs">
+            <textarea id="observaciones" name="observaciones" placeholder="Observaciones adicionales..."></textarea>
+          </td>
+        </tr>
+
+        <!-- BOTÓN DE ENVÍO -->
+        <tr>
+          <td colspan="4" style="text-align: center; padding: 20px; border: none;">
+            <button type="submit" class="submit-btn" id="btnEnviar">
+              📤 ENVIAR ORDEN DE TRABAJO
+            </button>
+          </td>
+        </tr>
+
+      </table>
+    </form>
+  </div>
+
+<script>
+// Validación y envío del formulario
+
+function toggleEditarNumeroOT(elemento) {
+    const inputNumeroOT = document.getElementById('numeroOT');
+    inputNumeroOT.readOnly = !inputNumeroOT.readOnly;
+    elemento.textContent = inputNumeroOT.readOnly ? '🔒 Bloqueado' : '✏️ Editable';
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-generar número de OT y fecha
+    document.getElementById('numeroOT').value = generarNumeroOT();
+    document.getElementById('fechaCreacion').value = new Date().toISOString().split('T')[0];
+    
+    // Manejar envío del formulario
+    document.getElementById('ordenTrabajoForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        if (validarFormulario()) {
+            enviarOrdenTrabajo();
+        }
+    });
+    
+    // Validación en tiempo real para campos numéricos
+    const camposNumericos = document.querySelectorAll('input[pattern="[0-9]*"]');
+    camposNumericos.forEach(campo => {
+        campo.addEventListener('input', function() {
+            validarCampoNumerico(this);
+        });
+    });
+});
+
+function generarNumeroOT() {
+    const ahora = new Date();
+    
+    // Componentes de fecha y hora para garantizar unicidad
+    const año = ahora.getFullYear().toString().slice(-2);
+    const mes = (ahora.getMonth() + 1).toString().padStart(2, '0');
+    const dia = ahora.getDate().toString().padStart(2, '0');
+    const horas = ahora.getHours().toString().padStart(2, '0');
+    const minutos = ahora.getMinutes().toString().padStart(2, '0');
+    const segundos = ahora.getSeconds().toString().padStart(2, '0');
+    const milisegundos = ahora.getMilliseconds().toString().padStart(3, '0');
+    
+    // Formato: OT-AA-MM-DD-HH-MM-SS-MS
+    return `OT-${año}${mes}${dia}-${horas}${minutos}${segundos}${milisegundos}`;
+}
+
+// Función para regenerar si necesitas
+function regenerarNumeroOT() {
+    if (confirm('¿Generar un nuevo número de OT único?')) {
+        document.getElementById('numeroOT').value = generarNumeroOT();
+    }
+}
+
+function validarCampoNumerico(campo) {
+    const valor = campo.value;
+    const errorElement = document.getElementById(`error-${campo.name}`);
+    
+    if (valor && !/^\d+$/.test(valor)) {
+        campo.classList.add('error');
+        if (errorElement) errorElement.style.display = 'block';
+        return false;
+    } else {
+        campo.classList.remove('error');
+        if (errorElement) errorElement.style.display = 'none';
+        return true;
+    }
+}
+
+function validarFormulario() {
+    let valido = true;
+    
+    // Campos requeridos
+    const camposRequeridos = [
+        'numeroOT', 'fechaCreacion', 'equipoMaquina', 'descripcion', 
+        'ubicacion', 'modelo', 'tipoAccion', 'odometro', 
+        'responsableEjecucion', 'fechaPlanificada', 'supervisor'
+    ];
+    
+    camposRequeridos.forEach(campoId => {
+        const campo = document.getElementById(campoId);
+        const errorElement = document.getElementById(`error-${campoId}`);
+        
+        if (!campo.value.trim()) {
+            campo.classList.add('error');
+            if (errorElement) errorElement.style.display = 'block';
+            valido = false;
+        } else {
+            campo.classList.remove('error');
+            if (errorElement) errorElement.style.display = 'none';
+        }
+    });
+    
+    // Validar campos numéricos
+    const camposNumericos = document.querySelectorAll('input[pattern="[0-9]*"]');
+    camposNumericos.forEach(campo => {
+        if (!validarCampoNumerico(campo)) {
+            valido = false;
+        }
+    });
+    
+    return valido;
+}
+
+function enviarOrdenTrabajo() {
+    const btnEnviar = document.getElementById('btnEnviar');
+    btnEnviar.disabled = true;
+    btnEnviar.textContent = '⏳ ENVIANDO...';
+    
+    // Recoger datos del formulario
+    const datos = {
+        numero_ot: document.getElementById('numeroOT').value,
+        fecha_creacion: document.getElementById('fechaCreacion').value,
+        equipo_id: 1, // Por defecto - puedes cambiar esto
+        tipo_accion_id: 1, // Por defecto
+        responsable_ejecucion_id: 1, // Por defecto
+        supervisor_id: 1, // Por defecto
+        fecha_planificada: document.getElementById('fechaPlanificada').value,
+        observaciones: document.getElementById('observaciones').value,
+        odometro: parseInt(document.getElementById('odometro').value) || 0,
+        tareas: [],
+        repuestos: [],
+        insumos: []
+    };
+    
+    // Recoger tareas
+    for (let i = 1; i <= 5; i++) {
+        const tarea = document.querySelector(`input[name="tarea${i}"]`).value;
+        const tiempoEstimado = document.querySelector(`input[name="tiempoEstimado${i}"]`).value;
+        const tiempoReal = document.querySelector(`input[name="tiempoReal${i}"]`).value;
+        
+        if (tarea) {
+            datos.tareas.push({
+                numero_item: i,
+                detalle: tarea,
+                tiempo_estimado: parseInt(tiempoEstimado) || 0,
+                tiempo_real: parseInt(tiempoReal) || 0
+            });
+        }
+    }
+    
+    // Recoger repuestos
+    for (let i = 1; i <= 5; i++) {
+        const codigo = document.querySelector(`input[name="repuestoCodigo${i}"]`).value;
+        const descripcion = document.querySelector(`input[name="repuestoDesc${i}"]`).value;
+        const cantidad = document.querySelector(`input[name="repuestoCantidad${i}"]`).value;
+        
+        if (codigo) {
+            datos.repuestos.push({
+                numero_item: i,
+                codigo: codigo,
+                descripcion: descripcion,
+                cantidad: parseInt(cantidad) || 1
+            });
+        }
+    }
+    
+    // Recoger insumos
+    for (let i = 1; i <= 5; i++) {
+        const codigo = document.querySelector(`input[name="insumoCodigo${i}"]`).value;
+        const descripcion = document.querySelector(`input[name="insumoDesc${i}"]`).value;
+        const cantidad = document.querySelector(`input[name="insumoCantidad${i}"]`).value;
+        
+        if (codigo) {
+            datos.insumos.push({
+                numero_item: i,
+                codigo: codigo,
+                descripcion: descripcion,
+                cantidad: parseInt(cantidad) || 1
+            });
+        }
+    }
+    
+    console.log('Datos a enviar:', datos);
+    
+    // Enviar a Django
+    fetch('http://localhost:8000/api/recibir-orden/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(datos)
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Respuesta del servidor:', data);
+        if (data.status === 'success') {
+            alert('✅ ¡Orden guardada correctamente!\nNúmero: ' + data.message);
+            // Opcional: Limpiar formulario
+            // document.getElementById('ordenTrabajoForm').reset();
+        } else {
+            alert('❌ Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('❌ Error de conexión con el servidor');
+    })
+    .finally(() => {
+        // Rehabilitar botón
+        btnEnviar.disabled = false;
+        btnEnviar.textContent = '📤 ENVIAR ORDEN DE TRABAJO';
+    });
+}
+</script>
+
+
+
+</body>
+</html>

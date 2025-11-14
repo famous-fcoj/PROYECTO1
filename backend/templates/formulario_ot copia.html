@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Orden de Trabajo - CONMETAL</title>
+    <style>
+        /* Tus estilos actuales... */
+        html,body{height:100%;margin:0;padding:0;font-family: 'Arial', sans-serif;background:#eee}
+        .sheet{width:794px; margin:18px auto;border:3px solid #2b6f9a;background:#fff;padding:6px;box-sizing:border-box}
+        table{border-collapse:collapse;width:100%;table-layout:fixed}
+        td, th{border:1px solid #1f3b4b;padding:4px;font-size:12px;vertical-align:middle}
+        .hdr-top{background:linear-gradient(#cfeefc,#c2e6fb);height:56px}
+        .logo {width:70px;height:52px;background:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;color:#0b5370}
+        .title {font-size:24px;font-weight:800;color:#083e55;text-align:center}
+        .label{background:#f2f9fd;font-weight:700;color:#052e3a}
+        .input{background:#fff}
+        .yellow{background:#fff59d}
+        .green{background:#b7e2a0}
+        .section{background:#cfe9f9;text-align:center;font-weight:800}
+        .item{width:36px;text-align:center;background:#f6fbfd;font-weight:700}
+        input[type=text], input[type=date], textarea, select{width:100%;border:0;padding:3px;background:transparent;font-size:12px}
+        textarea{min-height:56px}
+        .thick{border-top:3px solid #1f3b4b}
+        .no-border{border:none}
+        .small-label{font-weight:700;background:#f2f9fd}
+        .btn-guardar {
+            background: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .btn-guardar:hover {
+            background: #45a049;
+        }
+        .mensaje {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            display: none;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    </style>
+</head>
+<body>
+    <div class="sheet">
+        <div id="mensaje" class="mensaje"></div>
+        
+        <form id="formOrdenTrabajo">
+            {% csrf_token %}
+            <table>
+                <!-- Encabezado -->
+                <tr>
+                    <td colspan="4" class="hdr-top no-border">
+                        <table style="width:100%;border-collapse:collapse;height:56px;">
+                            <tr>
+                                <td style="width:11%;border:none;padding:6px">
+                                    <div class="logo">CONMETAL</div>
+                                </td>
+                                <td style="width:70%;border:none;padding:6px">
+                                    <div class="title">ORDEN DE TRABAJO</div>
+                                </td>
+                                <td style="width:19%;border-left:3px solid #1f3b4b;padding:6px">
+                                    <div style="display:flex;flex-direction:column;height:100%;justify-content:center">
+                                        <div style="font-weight:700;color:#083e55">Nº:</div>
+                                        <input type="text" name="numero_ot" value="{{ numero_ot_generado }}" readonly style="font-weight:800;font-size:14px;border:0;background:transparent;text-align:center;margin-top:4px">
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+                <!-- Datos principales -->
+                <tr>
+                    <td class="label" style="width:12%">FECHA:</td>
+                    <td style="width:38%"><input type="date" name="fecha_creacion" value="{{ fecha_actual }}"></td>
+                    <td class="label" style="width:12%">EQUIPO/MAQUINA:</td>
+                    <td class="yellow" style="width:38%">
+                        <select name="equipo_id" required>
+                            <option value="">Seleccionar equipo...</option>
+                            {% for equipo in equipos %}
+                            <option value="{{ equipo.id }}">{{ equipo.codigo }} - {{ equipo.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="label">DESCRIPCION:</td>
+                    <td colspan="2"><input type="text" name="descripcion_equipo"></td>
+                    <td class="label">MARCA:</td>
+                </tr>
+
+                <tr>
+                    <td class="label">UBICACIÓN:</td>
+                    <td><input type="text" name="ubicacion"></td>
+                    <td class="label">MODELO:</td>
+                    <td class="yellow"><input type="text" name="modelo"></td>
+                </tr>
+
+                <tr>
+                    <td class="label">TIPO DE ACCION:</td>
+                    <td>
+                        <select name="tipo_accion_id" required>
+                            <option value="">Seleccionar tipo...</option>
+                            {% for tipo in tipos_accion %}
+                            <option value="{{ tipo.id }}">{{ tipo.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td class="label">ODOMETRO: (H) (Km)</td>
+                    <td><input type="text" name="odometro"></td>
+                </tr>
+
+                <tr>
+                    <td class="label">RESPONSABLE DE EJECUCION</td>
+                    <td class="green">
+                        <select name="responsable_ejecucion_id" required>
+                            <option value="">Seleccionar responsable...</option>
+                            {% for usuario in usuarios %}
+                            <option value="{{ usuario.id }}">{{ usuario.nombre_completo }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td class="label">FECHA PLAN.</td>
+                    <td><input type="date" name="fecha_planificada"></td>
+                </tr>
+
+                <tr>
+                    <td class="label">SUPERVISOR</td>
+                    <td colspan="3">
+                        <select name="supervisor_id">
+                            <option value="">Seleccionar supervisor...</option>
+                            {% for usuario in usuarios %}
+                            <option value="{{ usuario.id }}">{{ usuario.nombre_completo }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                </tr>
+
+                <!-- TAREAS A EJECUTAR -->
+                <tr><td colspan="4" class="section thick">TAREAS A EJECUTAR</td></tr>
+                <tr>
+                    <td class="item">ITEM</td>
+                    <td class="w40">DETALLE</td>
+                    <td class="w25">TIEMPO ESTIMADO</td>
+                    <td class="w25">TIEMPO REAL</td>
+                </tr>
+
+                <!-- Filas de tareas -->
+                {% for i in "12345" %}
+                <tr>
+                    <td class="item">{{ i }}</td>
+                    <td><input type="text" name="tarea_detalle_{{ i }}" placeholder="Detalle de la tarea"></td>
+                    <td><input type="number" name="tarea_tiempo_estimado_{{ i }}" placeholder="Minutos" min="0"></td>
+                    <td><input type="number" name="tarea_tiempo_real_{{ i }}" placeholder="Minutos" min="0"></td>
+                </tr>
+                {% endfor %}
+
+                <!-- REPUESTOS REQUERIDOS -->
+                <tr><td colspan="4" class="section thick">REPUESTOS REQUERIDOS</td></tr>
+                <tr>
+                    <td class="item">ITEM</td>
+                    <td class="w25">CODIGO</td>
+                    <td class="w40">DESCRIPCION</td>
+                    <td class="w35">CANTIDAD</td>
+                </tr>
+
+                {% for i in "12345" %}
+                <tr>
+                    <td class="item">{{ i }}</td>
+                    <td class="green"><input type="text" name="repuesto_codigo_{{ i }}" placeholder="Código"></td>
+                    <td class="yellow"><input type="text" name="repuesto_descripcion_{{ i }}" placeholder="Descripción"></td>
+                    <td><input type="number" name="repuesto_cantidad_{{ i }}" placeholder="Cantidad" min="1" value="1"></td>
+                </tr>
+                {% endfor %}
+
+                <!-- INSUMOS REQUERIDOS -->
+                <tr><td colspan="4" class="section thick">INSUMOS REQUERIDOS</td></tr>
+                <tr>
+                    <td class="item">ITEM</td>
+                    <td class="w25">CODIGO</td>
+                    <td class="w40">DESCRIPCION</td>
+                    <td class="w35">CANTIDAD</td>
+                </tr>
+
+                {% for i in "12345" %}
+                <tr>
+                    <td class="item">{{ i }}</td>
+                    <td class="green"><input type="text" name="insumo_codigo_{{ i }}" placeholder="Código"></td>
+                    <td class="yellow"><input type="text" name="insumo_descripcion_{{ i }}" placeholder="Descripción"></td>
+                    <td><input type="number" name="insumo_cantidad_{{ i }}" placeholder="Cantidad" min="1" value="1"></td>
+                </tr>
+                {% endfor %}
+
+                <!-- FINALIZACION -->
+                <tr><td colspan="4" class="section thick">FINALIZACION DE TRABAJO</td></tr>
+                <tr>
+                    <td class="small-label">REVISADO POR</td>
+                    <td><input type="text" name="revisado_por"></td>
+                    <td class="small-label">FECHA</td>
+                    <td><input type="date" name="fecha_revision"></td>
+                </tr>
+                <tr>
+                    <td class="small-label">FIRMA</td>
+                    <td></td>
+                    <td class="small-label">RECIBIDO POR</td>
+                    <td><input type="text" name="recibido_por"></td>
+                </tr>
+                <tr>
+                    <td class="small-label" colspan="4">OBSERVACIONES</td>
+                </tr>
+                <tr>
+                    <td colspan="4" class="obs"><textarea name="observaciones" placeholder="Observaciones generales..."></textarea></td>
+                </tr>
+
+                <!-- BOTÓN GUARDAR -->
+                <tr>
+                    <td colspan="4" style="text-align: center; padding: 20px;">
+                        <button type="submit" class="btn-guardar">GUARDAR ORDEN DE TRABAJO</button>
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('formOrdenTrabajo').addEventListener('submit', function(e) {
+            e.preventDefault();
+            guardarOrdenTrabajo();
+        });
+
+        function guardarOrdenTrabajo() {
+            const formData = new FormData(document.getElementById('formOrdenTrabajo'));
+            const data = {
+                numero_ot: formData.get('numero_ot'),
+                fecha_creacion: formData.get('fecha_creacion'),
+                equipo_id: formData.get('equipo_id'),
+                tipo_accion_id: formData.get('tipo_accion_id'),
+                responsable_ejecucion_id: formData.get('responsable_ejecucion_id'),
+                supervisor_id: formData.get('supervisor_id'),
+                fecha_planificada: formData.get('fecha_planificada'),
+                observaciones: formData.get('observaciones'),
+                odometro: formData.get('odometro'),
+                tareas: [],
+                repuestos: [],
+                insumos: []
+            };
+
+            // Recolectar tareas
+            for (let i = 1; i <= 5; i++) {
+                const detalle = formData.get(`tarea_detalle_${i}`);
+                if (detalle) {
+                    data.tareas.push({
+                        numero_item: i,
+                        detalle: detalle,
+                        tiempo_estimado: parseInt(formData.get(`tarea_tiempo_estimado_${i}`)) || 0,
+                        tiempo_real: parseInt(formData.get(`tarea_tiempo_real_${i}`)) || 0
+                    });
+                }
+            }
+
+            // Recolectar repuestos
+            for (let i = 1; i <= 5; i++) {
+                const codigo = formData.get(`repuesto_codigo_${i}`);
+                if (codigo) {
+                    data.repuestos.push({
+                        numero_item: i,
+                        codigo: codigo,
+                        descripcion: formData.get(`repuesto_descripcion_${i}`) || codigo,
+                        cantidad: parseInt(formData.get(`repuesto_cantidad_${i}`)) || 1
+                    });
+                }
+            }
+
+            // Recolectar insumos
+            for (let i = 1; i <= 5; i++) {
+                const codigo = formData.get(`insumo_codigo_${i}`);
+                if (codigo) {
+                    data.insumos.push({
+                        numero_item: i,
+                        codigo: codigo,
+                        descripcion: formData.get(`insumo_descripcion_${i}`) || codigo,
+                        cantidad: parseInt(formData.get(`insumo_cantidad_${i}`)) || 1
+                    });
+                }
+            }
+
+            // Calcular tiempo total estimado
+            data.tiempo_estimado_total = data.tareas.reduce((total, tarea) => total + (tarea.tiempo_estimado || 0), 0);
+
+            // Enviar a Django
+            fetch('/api/crear-orden-completa/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken(),
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                const mensaje = document.getElementById('mensaje');
+                if (data.status === 'success') {
+                    mensaje.className = 'mensaje success';
+                    mensaje.textContent = `✅ ${data.message} - Número: ${data.numero_ot}`;
+                    mensaje.style.display = 'block';
+                    
+                    // Opcional: limpiar formulario después de guardar
+                    // document.getElementById('formOrdenTrabajo').reset();
+                } else {
+                    mensaje.className = 'mensaje error';
+                    mensaje.textContent = `❌ ${data.message}`;
+                    mensaje.style.display = 'block';
+                }
+            })
+            .catch(error => {
+                const mensaje = document.getElementById('mensaje');
+                mensaje.className = 'mensaje error';
+                mensaje.textContent = '❌ Error de conexión con el servidor';
+                mensaje.style.display = 'block';
+                console.error('Error:', error);
+            });
+        }
+
+        function getCSRFToken() {
+            const name = 'csrftoken';
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // Auto-generar número de OT
+        function generarNumeroOT() {
+            const ahora = new Date();
+            const año = ahora.getFullYear().toString().slice(-2);
+            const numero = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+            return `${numero}-${año}`;
+        }
+
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', function() {
+            // Poner fecha actual si no hay valor
+            if (!document.querySelector('input[name="fecha_creacion"]').value) {
+                const hoy = new Date().toISOString().split('T')[0];
+                document.querySelector('input[name="fecha_creacion"]').value = hoy;
+            }
+        });
+    </script>
+</body>
+</html>

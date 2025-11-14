@@ -1,0 +1,99 @@
+/* Estilos del contenedor principal */
+.upload-container {
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.upload-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.file-input-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.file-input-container input[type="file"] {
+    padding: 10px;
+    border: 2px dashed #ccc;
+    border-radius: 4px;
+    width: 100%;
+    cursor: pointer;
+}
+
+.file-input-container input[type="file"]:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.loading-indicator {
+    color: #1976d2;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.error-message {
+    border-left: 4px solid #d32f2f;
+}
+
+.result-container {
+    border-left: 4px solid #2e7d32;
+}
+
+.instructions {
+    border-left: 4px solid #1976d2;
+}
+
+.instructions ul {
+    margin: 8px 0;
+    padding-left: 20px;
+}
+
+.instructions li {
+    margin: 4px 0;
+}
+
+/* Estilo para la lista de errores scrolleable */
+.result-container ul {
+    list-style: none;
+    padding: 10px;
+    margin: 0;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.result-container li {
+    padding: 8px;
+    border-bottom: 1px solid #eee;
+}
+
+.result-container li:last-child {
+    border-bottom: none;
+}
+
+/* Estilos heredados para tablas */
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+td, th {
+    border: 1px solid #1f3b4b;
+    padding: 4px;
+}
+
+.label {
+    background: #f2f9fd;
+    font-weight: 700;
+    color: #052e3a;
+    padding: 8px;
+}

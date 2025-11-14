@@ -1,0 +1,779 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>CONMETAL - Sistema</title>
+  <style>
+    /* Reset & base styles */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f0f0;
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    /* Form sheet styling */
+    .sheet {
+      width: 1024px;
+      margin: 0 auto;
+      background: #fff;
+      border: 2px solid #2b6f9a;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    /* Header styling */
+    .header {
+      background: #2b6f9a;
+      color: white;
+      padding: 15px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    /* Table styling */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 0;
+      table-layout: fixed;
+    }
+
+    td {
+      border: 1px solid #2b6f9a;
+      padding: 8px;
+      vertical-align: middle;
+      overflow: hidden;
+    }
+
+    /* Label styling */
+    .label {
+      background: #e3f2fd;
+      font-weight: bold;
+      color: #2b6f9a;
+      width: 200px;
+    }
+
+    .section {
+      background: #2b6f9a;
+      color: white;
+      text-align: center;
+      font-weight: bold;
+      padding: 10px;
+    }
+
+    /* Section headers */
+    .section-header {
+      background: #2b6f9a;
+      color: white;
+      text-align: center;
+      padding: 10px;
+      font-weight: bold;
+      border: 1px solid #1a5c86;
+    }
+
+    /* Form controls */
+    input[type="text"],
+    input[type="number"],
+    input[type="date"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #2b6f9a;
+      border-radius: 4px;
+      font-size: 14px;
+      background: #fff;
+    }
+
+    input[type="number"] {
+      text-align: right;
+    }
+
+    input:invalid {
+      border-color: #d32f2f;
+      background-color: #ffebee;
+    }
+
+    /* Specific field styling */
+    .field-equipo {
+      background: #e3f2fd;
+      font-weight: bold;
+    }
+
+    .field-fecha {
+      width: 150px;
+    }
+
+    .field-numero {
+      width: 200px;
+      background: #e3f2fd;
+    }
+
+    textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    /* Submit button */
+    .submit-btn {
+      background: #4CAF50;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.2s;
+    }
+
+    .submit-btn:hover {
+      background: #45a049;
+    }
+
+    /* Error messages */
+    .error-message {
+      color: #d32f2f;
+      font-size: 12px;
+      margin-top: 4px;
+      display: none;
+    }
+
+    /* Excel upload section */
+    .excel-section {
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 4px;
+      margin-top: 20px;
+    }
+
+    .excel-section h3 {
+      color: #2b6f9a;
+      margin-bottom: 15px;
+    }
+
+    /* Utility classes */
+    .text-center { text-align: center; }
+    .font-bold { font-weight: bold; }
+    .bg-light-blue { background: #e3f2fd; }
+    .bg-yellow { background: #fff9c4; }
+    .w-150 { width: 150px; }
+    .mt-2 { margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <div class="sheet">
+    <div class="header">ORDEN DE TRABAJO</div>
+    
+    <form id="ordenTrabajoForm">
+      <table>
+        <!-- Encabezado -->
+        <tr>
+          <td class="label w-150">FECHA:</td>
+          <td><input type="date" id="fechaCreacion" name="fechaCreacion" class="field-fecha" required></td>
+          
+          <td class="label w-150">Nº OT:</td>
+          <td><input type="text" id="numeroOt" name="numeroOt" class="field-numero" required></td>
+        </tr>
+
+        <tr>
+          <td class="label">EQUIPO/MAQUINA:</td>
+          <td colspan="3">
+            <input type="text" id="equipoMaquina" name="equipoMaquina" class="field-equipo" required pattern="[A-Za-zÀ-ÖØ-öø-ÿ0-9\s\-_,.()\/]+" title="Ingrese un nombre válido (letras, números y signos básicos)">
+          </td>
+        </tr>
+
+        <tr>
+          <td class="label">DESCRIPCION:</td>
+          <td colspan="2">
+            <input type="text" id="descripcion" name="descripcion" required pattern="[A-Za-zÀ-ÖØ-öø-ÿ0-9\s\-_,.()\/]+" title="Ingrese una descripción válida (letras, números y signos básicos)">
+          </td>
+          <td>
+            <input type="text" id="marca" name="marca" placeholder="Marca del equipo" pattern="[A-Za-zÀ-ÖØ-öø-ÿ0-9\s\-_,.()\/]+" title="Ingrese una marca válida">
+          </td>
+        </tr>
+
+        <tr>
+          <td class="label">UBICACIÓN:</td>
+          <td>
+            <input type="text" id="ubicacion" name="ubicacion" placeholder="Ubicación del equipo" required>
+            <div class="error-message" id="error-ubicacion" style="display:none;color:red;font-size:12px">Ubicación requerida</div>
+          </td>
+          <td class="label">MODELO:</td>
+          <td class="yellow">
+            <input type="text" id="modelo" name="modelo" placeholder="Modelo del equipo" required>
+            <div class="error-message" id="error-modelo" style="display:none;color:red;font-size:12px">Modelo requerido</div>
+          </td>
+        </tr>
+
+        <tr>
+          <td class="label">TIPO DE ACCION:</td>
+          <td>
+            <input type="text" id="tipoAccion" name="tipoAccion" placeholder="Ej: Correctivo, Preventivo">
+          </td>
+          <td class="label">ODOMETRO: (H) (Km)</td>
+          <td>
+            <input type="number" id="odometro" name="odometro" min="0" step="1" 
+                   oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                   title="Ingrese un valor numérico entero positivo">
+          </td>
+        </tr>
+
+        <tr>
+          <td class="label">RESPONSABLE DE EJECUCION</td>
+          <td>
+            <input type="text" id="responsableEjecucion" name="responsableEjecucion" 
+                   pattern="[A-Za-zÀ-ÖØ-öø-ÿ\s\-]+" 
+                   title="Ingrese un nombre válido (solo letras, espacios y guiones)"
+                   placeholder="Nombre del responsable">
+          </td>
+          <td class="label">FECHA PLAN.</td>
+          <td>
+            <input type="date" id="fechaPlanificada" name="fechaPlanificada" class="field-fecha">
+          </td>
+        </tr>
+
+        <tr>
+          <td class="label">SUPERVISOR</td>
+          <td colspan="3">
+            <input type="text" id="supervisor" name="supervisor" placeholder="Nombre del supervisor">
+          </td>
+        </tr>
+
+        <tr><td colspan="4" class="section">TAREAS A EJECUTAR</td></tr>
+        <tr>
+          <td class="label">ITEM</td>
+          <td class="label">DETALLE</td>
+          <td class="label">TIEMPO ESTIMADO</td>
+          <td class="label">TIEMPO REAL</td>
+        </tr>
+        <!-- 5 tareas -->
+        <tr>
+          <td class="label">1</td>
+          <td><input type="text" name="tarea1"></td>
+          <td><input type="number" name="tiempoEstimado1" min="0"></td>
+          <td><input type="number" name="tiempoReal1" min="0"></td>
+        </tr>
+        <tr>
+          <td class="label">2</td>
+          <td><input type="text" name="tarea2"></td>
+          <td><input type="number" name="tiempoEstimado2" min="0"></td>
+          <td><input type="number" name="tiempoReal2" min="0"></td>
+        </tr>
+        <tr>
+          <td class="label">3</td>
+          <td><input type="text" name="tarea3"></td>
+          <td><input type="number" name="tiempoEstimado3" min="0"></td>
+          <td><input type="number" name="tiempoReal3" min="0"></td>
+        </tr>
+        <tr>
+          <td class="label">4</td>
+          <td><input type="text" name="tarea4"></td>
+          <td><input type="number" name="tiempoEstimado4" min="0"></td>
+          <td><input type="number" name="tiempoReal4" min="0"></td>
+        </tr>
+        <tr>
+          <td class="label">5</td>
+          <td><input type="text" name="tarea5"></td>
+          <td><input type="number" name="tiempoEstimado5" min="0"></td>
+          <td><input type="number" name="tiempoReal5" min="0"></td>
+        </tr>
+
+        <tr><td colspan="4" class="section">REPUESTOS REQUERIDOS</td></tr>
+        <tr>
+          <td class="label">ITEM</td>
+          <td class="label">CODIGO</td>
+          <td class="label">DESCRIPCION</td>
+          <td class="label">CANTIDAD</td>
+        </tr>
+        <!-- 5 repuestos -->
+        <tr>
+          <td class="label">1</td>
+          <td><input type="text" name="repuestoCodigo1"></td>
+          <td><input type="text" name="repuestoDesc1"></td>
+          <td><input type="number" name="repuestoCantidad1" min="0"></td>
+        </tr>
+        <tr>
+          <td class="label">2</td>
+          <td><input type="text" name="repuestoCodigo2"></td>
+          <td><input type="text" name="repuestoDesc2"></td>
+          <td><input type="number" name="repuestoCantidad2" min="0"></td>
+        </tr>
+        <tr>
+          <td class="label">3</td>
+          <td><input type="text" name="repuestoCodigo3"></td>
+          <td><input type="text" name="repuestoDesc3"></td>
+          <td><input type="number" name="repuestoCantidad3" min="0"></td>
+        </tr>
+        <tr>
+          <td class="label">4</td>
+          <td><input type="text" name="repuestoCodigo4"></td>
+          <td><input type="text" name="repuestoDesc4"></td>
+          <td><input type="number" name="repuestoCantidad4" min="0"></td>
+        </tr>
+        <tr>
+          <td class="label">5</td>
+          <td><input type="text" name="repuestoCodigo5"></td>
+          <td><input type="text" name="repuestoDesc5"></td>
+          <td><input type="number" name="repuestoCantidad5" min="0"></td>
+        </tr>
+
+        <tr><td colspan="4" class="section">INSUMOS REQUERIDOS</td></tr>
+        <tr>
+          <td class="label">ITEM</td>
+          <td class="label">CODIGO</td>
+          <td class="label">DESCRIPCION</td>
+          <td class="label">CANTIDAD</td>
+        </tr>
+        <!-- 5 insumos -->
+        <tr>
+          <td class="label">1</td>
+          <td><input type="text" name="insumoCodigo1"></td>
+          <td><input type="text" name="insumoDesc1"></td>
+          <td><input type="number" name="insumoCantidad1" min="0"></td>
+        </tr>
+        <tr>
+          <td class="label">2</td>
+          <td><input type="text" name="insumoCodigo2"></td>
+          <td><input type="text" name="insumoDesc2"></td>
+          <td><input type="number" name="insumoCantidad2" min="0"></td>
+        </tr>
+        <tr>
+          <td class="label">3</td>
+          <td><input type="text" name="insumoCodigo3"></td>
+          <td><input type="text" name="insumoDesc3"></td>
+          <td><input type="number" name="insumoCantidad3" min="0"></td>
+        </tr>
+        <tr>
+          <td class="label">4</td>
+          <td><input type="text" name="insumoCodigo4"></td>
+          <td><input type="text" name="insumoDesc4"></td>
+          <td><input type="number" name="insumoCantidad4" min="0"></td>
+        </tr>
+        <tr>
+          <td class="label">5</td>
+          <td><input type="text" name="insumoCodigo5"></td>
+          <td><input type="text" name="insumoDesc5"></td>
+          <td><input type="number" name="insumoCantidad5" min="0"></td>
+        </tr>
+
+        <tr><td colspan="4" class="section">FINALIZACION DE TRABAJO</td></tr>
+        <tr>
+          <td class="label">REVISADO POR</td>
+          <td><input type="text" id="revisadoPor" name="revisadoPor"></td>
+          <td class="label">FECHA</td>
+          <td><input type="date" id="fechaRevision" name="fechaRevision"></td>
+        </tr>
+        <tr>
+          <td class="label">FIRMA</td>
+          <td></td>
+          <td class="label">RECIBIDO POR</td>
+          <td><input type="text" id="recibidoPor" name="recibidoPor"></td>
+        </tr>
+        <tr>
+          <td class="label" colspan="4">OBSERVACIONES</td>
+        </tr>
+        <tr>
+          <td colspan="4"><textarea id="observaciones" name="observaciones"></textarea></td>
+        </tr>
+        <tr>
+          <td colspan="4" style="text-align:center;border:none;padding:12px">
+            <button type="submit" class="submit-btn" id="btnEnviar">📤 ENVIAR ORDEN DE TRABAJO</button>
+          </td>
+        </tr>
+      </table>
+      </form>
+    </div>
+
+    <!-- Section: Excel Upload -->
+    <div id="section-excel" class="sheet hidden">
+      <h3>Cargar Excel de Órdenes</h3>
+      
+      <div class="upload-tabs">
+        <div class="tab active" onclick="showUploadTab('regular')">Excel Regular</div>
+        <div class="tab" onclick="showUploadTab('sheet-per-ot')">Excel OT por Hoja</div>
+      </div>
+
+      <div id="regular-upload" class="upload-content active">
+        <p>Sube un archivo Excel  con el formato de plantilla OT. Cada fila representará una orden de trabajo.</p>
+        <input type="file" id="excelFile" accept=".xlsx,.xls">
+        <div style="margin-top:12px">
+          <button id="btnUpload" class="submit-btn">Cargar Excel Regular</button>
+        </div>
+      </div>
+
+      <div id="sheet-per-ot-upload" class="upload-content">
+        <p>Sube un archivo Excel  con el formato de plantilla OT. Cada fila representará una orden de trabajo.strong</strong> con el formato de plantilla OT. El sistema importará cada hoja como una OT independiente.</p>
+        <input type="file" id="excelFileSheetPerOt" accept=".xlsx,.xls">
+        <div style="margin-top:12px">
+          <button id="btnUploadSheetPerOt" class="submit-btn">Cargar OT por Hoja</button>
+        </div>
+      </div>
+
+      <div id="uploadResult" class="result" style="display:none"></div>
+      <div id="uploadError" class="error" style="display:none"></div>
+    </div>
+
+    <style>
+    .upload-tabs {
+      display: flex;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #2b6f9a;
+    }
+    .upload-tabs .tab {
+      padding: 10px 20px;
+      cursor: pointer;
+      border: 1px solid #2b6f9a;
+      border-bottom: none;
+      margin-right: 5px;
+      border-radius: 4px 4px 0 0;
+    }
+    .upload-tabs .tab.active {
+      background: #2b6f9a;
+      color: white;
+    }
+    .upload-content {
+      display: none;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 0 0 4px 4px;
+    }
+    .upload-content.active {
+      display: block;
+    }
+    </style>
+  </div>
+
+  <script>
+    // Load SheetJS via CDN for client-side Excel validation (if CDN blocked, validation will skip)
+    // We inject a script element dynamically so this file remains standalone.
+    (function(){
+      const s = document.createElement('script');
+      s.src = 'https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js';
+      s.crossOrigin = 'anonymous';
+      s.onload = ()=>{ console.debug('SheetJS cargado'); };
+      s.onerror = ()=>{ console.warn('No se pudo cargar SheetJS, la validación previa de Excel no estará disponible'); };
+      document.head.appendChild(s);
+    })();
+    // Navigation (guarded — some pages/templates may not include nav elements)
+    const btnNavOt = document.getElementById('btn-nav-ot');
+    const btnNavExcel = document.getElementById('btn-nav-excel');
+    const sectionOt = document.getElementById('section-ot');
+    const sectionExcel = document.getElementById('section-excel');
+
+    function showSection(name){
+      // ensure sections exist before manipulating classes
+      if(!sectionOt || !sectionExcel) return;
+      if(name==='ot'){
+        sectionOt.classList.remove('hidden');
+        sectionExcel.classList.add('hidden');
+        if(btnNavOt) btnNavOt.classList.add('active');
+        if(btnNavExcel) btnNavExcel.classList.remove('active');
+      } else {
+        sectionOt.classList.add('hidden');
+        sectionExcel.classList.remove('hidden');
+        if(btnNavOt) btnNavOt.classList.remove('active');
+        if(btnNavExcel) btnNavExcel.classList.add('active');
+      }
+    }
+
+    if(btnNavOt && btnNavExcel){
+      btnNavOt.addEventListener('click', ()=> showSection('ot'));
+      btnNavExcel.addEventListener('click', ()=> showSection('excel'));
+    }
+
+    // OT form behavior (simplified)
+    function isTextSafe(s, allowEmpty = true) {
+      if (s === null || s === undefined || s === '') return allowEmpty;
+      return /^[A-Za-zÀ-ÖØ-öø-ÿ0-9\s\-_,.()\/]+$/.test(String(s).trim());
+    }
+
+    function isPositiveNumber(v, allowEmpty = true) {
+      if (v === null || v === undefined || v === '') return allowEmpty;
+      const num = Number(v);
+      return !isNaN(num) && num >= 0 && Number.isInteger(num);
+    }
+
+    // Validate numeric inputs on input
+    document.querySelectorAll('input[type="number"]').forEach(input => {
+      input.addEventListener('input', function() {
+        const value = this.value;
+        if (value && !isPositiveNumber(value, false)) {
+          this.setCustomValidity('Ingrese un número entero positivo');
+        } else {
+          this.setCustomValidity('');
+        }
+      });
+    });
+
+    // Validate text inputs on input
+    document.querySelectorAll('input[type="text"]').forEach(input => {
+      if (input.id !== 'numeroOt') { // Skip OT number validation
+        input.addEventListener('input', function() {
+          const value = this.value;
+          if (value && !isTextSafe(value, false)) {
+            this.setCustomValidity('Ingrese texto válido (letras, números y signos básicos)');
+          } else {
+            this.setCustomValidity('');
+          }
+        });
+      }
+    });
+
+    document.getElementById('ordenTrabajoForm').addEventListener('submit', function(e){
+      e.preventDefault();
+      const btn = document.getElementById('btnEnviar');
+      btn.disabled = true; btn.textContent = '⏳ ENVIANDO...';
+
+      // Simple validation
+      const errors = [];
+      const numeroOt = document.getElementById('numeroOt').value.trim();
+      const equipo = document.getElementById('equipoMaquina').value.trim();
+      const descripcion = document.getElementById('descripcion').value.trim();
+      const ubicacion = document.getElementById('ubicacion').value.trim();
+      const modelo = document.getElementById('modelo').value.trim();
+      const responsable = document.getElementById('responsableEjecucion').value.trim();
+      const supervisor = document.getElementById('supervisor').value.trim();
+      const odometroVal = document.getElementById('odometro').value;
+
+      if(!numeroOt) errors.push('Nº OT es obligatorio');
+      if(!isTextSafe(equipo)) errors.push('Equipo/Máquina debe ser texto válido');
+      if(!isTextSafe(descripcion)) errors.push('Descripción debe ser texto válido');
+      if(!isTextSafe(ubicacion)) errors.push('Ubicación debe ser texto válido');
+      if(modelo && !isTextSafe(modelo)) errors.push('Modelo inválido');
+      if(responsable && !isTextSafe(responsable)) errors.push('Responsable inválido');
+      if(supervisor && !isTextSafe(supervisor)) errors.push('Supervisor inválido');
+      if(!isPositiveNumber(odometroVal)) errors.push('Odómetro debe ser número mayor o igual a 0');
+
+      // tareas numeric checks
+      for(let i=1;i<=5;i++){
+        const te = document.querySelector(`[name=tiempoEstimado${i}]`);
+        const tr = document.querySelector(`[name=tiempoReal${i}]`);
+        if(te && te.value && !isPositiveNumber(te.value)) errors.push(`Tiempo estimado ${i} inválido`);
+        if(tr && tr.value && !isPositiveNumber(tr.value)) errors.push(`Tiempo real ${i} inválido`);
+        const det = document.querySelector(`[name=tarea${i}]`);
+        if(det && det.value && !isTextSafe(det.value)) errors.push(`Detalle tarea ${i} inválido`);
+      }
+
+      // repuestos and insumos numeric checks
+      for(let i=1;i<=5;i++){
+        const rc = document.querySelector(`[name=repuestoCantidad${i}]`);
+        if(rc && rc.value && !isPositiveNumber(rc.value)) errors.push(`Cantidad repuesto ${i} inválida`);
+        const ic = document.querySelector(`[name=insumoCantidad${i}]`);
+        if(ic && ic.value && !isPositiveNumber(ic.value)) errors.push(`Cantidad insumo ${i} inválida`);
+      }
+
+      if(errors.length>0){
+        alert('Errores:\n- ' + errors.join('\n- '));
+        btn.disabled=false; btn.textContent='📤 ENVIAR ORDEN DE TRABAJO';
+        return;
+      }
+
+      const datos = {
+        numero_ot: numeroOt || ('OT-' + Date.now()),
+        fecha_creacion: document.getElementById('fechaCreacion').value,
+        equipo_maquina: equipo,
+        descripcion: descripcion,
+        marca: document.getElementById('modelo').value,
+        ubicacion: ubicacion,
+        modelo: modelo,
+        tipo_accion: document.getElementById('tipoAccion').value,
+        odometro: parseInt(odometroVal) || 0,
+        responsable_ejecucion: responsable,
+        fecha_planificada: document.getElementById('fechaPlanificada').value,
+        supervisor: supervisor,
+        observaciones: document.getElementById('observaciones').value
+      };
+
+      fetch('http://localhost:8000/recibir-orden/', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(datos)
+      }).then(r=>r.json()).then(data=>{
+        alert('Respuesta: ' + (data.message || JSON.stringify(data)));
+      }).catch(err=>{
+        console.error(err); alert('Error al enviar OT');
+      }).finally(()=>{btn.disabled=false; btn.textContent='📤 ENVIAR ORDEN DE TRABAJO'});
+    });
+
+    // Tab switching for upload types
+    function showUploadTab(tabName) {
+      document.querySelectorAll('.upload-tabs .tab').forEach(tab => tab.classList.remove('active'));
+      document.querySelectorAll('.upload-content').forEach(content => content.classList.remove('active'));
+      
+      if(tabName === 'regular') {
+        document.querySelector('.upload-tabs .tab:first-child').classList.add('active');
+        document.getElementById('regular-upload').classList.add('active');
+      } else {
+        document.querySelector('.upload-tabs .tab:last-child').classList.add('active');
+        document.getElementById('sheet-per-ot-upload').classList.add('active');
+      }
+    }
+
+    // Excel upload with client-side validation
+    const excelInput = document.getElementById('excelFile');
+    const excelSheetPerOtInput = document.getElementById('excelFileSheetPerOt');
+    const uploadBtn = document.getElementById('btnUpload');
+    const uploadSheetPerOtBtn = document.getElementById('btnUploadSheetPerOt');
+    const resultDiv = document.getElementById('uploadResult');
+    const errorDiv = document.getElementById('uploadError');
+    let lastValidated = { ok: false, missing: [], detected: [] };
+
+    function normalizeHeader(s){
+      if(s===null || s===undefined) return '';
+      s = String(s).trim().toLowerCase();
+      // remove accents
+      s = s.normalize('NFKD').replace(/\p{Diacritic}/gu, '');
+      // replace non-alnum with space
+      s = s.replace(/[^a-z0-9]+/g, ' ').trim();
+      return s;
+    }
+
+    // expected canonical headers with common variants (we will normalize and substring-match)
+    const expectedVariants = {
+      ot: ['ot','orden de trabajo','orden','n','numero','numero ot','nº','n°','numero_ot'],
+      fecha: ['fecha','fecha inicio','fecha_inicio','fecha plan','fecha plan.','fecha plan.','fecha de inicio'],
+      'equipo maquina': ['equipo','equipo maquina','equipo/maquina','máquina','maquina'],
+      descripcion: ['descripcion','detalle','observacion','observaciones'],
+      marca: ['marca'],
+      ubicacion: ['ubicacion','ubicación'],
+      modelo: ['modelo'],
+      'tipo de accion': ['tipo de accion','tipo accion','tipo','falla','tipo de falla'],
+      odometro: ['odometro','odometro (h) (km)','hodometro','odometro km'],
+      'responsable de ejecucion': ['responsable de ejecucion','responsable','encargado','encargado de ejecucion'],
+      'fecha plan': ['fecha plan','fecha_plan','fecha plan.','fecha prevista'],
+      supervisor: ['supervisor'],
+      observaciones: ['observaciones','observacion']
+    };
+
+    function showExcelValidation(ok, missing, detected){
+      if(ok){
+        resultDiv.style.display='block'; resultDiv.innerHTML = '<strong>Validación OK:</strong> Encabezados detectados: ' + detected.join(', ');
+        errorDiv.style.display='none';
+      } else {
+        resultDiv.style.display='none';
+        errorDiv.style.display='block';
+        errorDiv.innerHTML = '<strong>Encabezados faltantes:</strong> ' + missing.join(', ') + '<br><small>Encabezados detectados: ' + detected.join(', ') + '</small>';
+      }
+    }
+
+    // Initialize handlers for both upload buttons
+    uploadSheetPerOtBtn.addEventListener('click', async function(){
+      resultDiv.style.display='none';
+      errorDiv.style.display='none';
+      const input = excelSheetPerOtInput;
+      const file = input.files[0];
+      if(!file){ 
+        errorDiv.textContent='Selecciona un archivo.';
+        errorDiv.style.display='block';
+        return;
+      }
+
+      // For sheet-per-OT, we skip client-side validation since the format is different
+      const formData = new FormData();
+      formData.append('archivo', file);
+      formData.append('sheet_per_ot', 'true');
+
+      try {
+        const resp = await fetch('http://localhost:8000/cargar-excel/', {
+          method:'POST',
+          body: formData
+        });
+        const data = await resp.json();
+        if(resp.ok){
+          resultDiv.innerHTML = '<strong>OK:</strong> ' + (data.message || JSON.stringify(data));
+          resultDiv.style.display='block';
+        } else {
+          errorDiv.innerHTML = '<strong>Error:</strong> ' + (data.message || JSON.stringify(data));
+          errorDiv.style.display='block';
+        }
+      } catch(e){
+        errorDiv.textContent = 'Error de conexión: '+e.message;
+        errorDiv.style.display='block';
+      }
+    });
+
+    excelInput.addEventListener('change', function(){
+      resultDiv.style.display='none'; errorDiv.style.display='none'; lastValidated = { ok:false, missing:[], detected:[] };
+      const f = this.files && this.files[0];
+      if(!f){ errorDiv.style.display='block'; errorDiv.textContent='Selecciona un archivo.'; return; }
+
+      // if SheetJS not loaded, skip validation
+      if(typeof XLSX === 'undefined'){
+        resultDiv.style.display='block'; resultDiv.innerHTML = '<strong>Nota:</strong> Validación previa no disponible (SheetJS no cargado). El archivo será enviado al servidor para validación.';
+        lastValidated.ok = true; return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(e){
+        try{
+          const data = e.target.result;
+          const wb = XLSX.read(data, {type: 'array'});
+          const firstSheetName = wb.SheetNames[0];
+          const ws = wb.Sheets[firstSheetName];
+          const rows = XLSX.utils.sheet_to_json(ws, {header:1});
+          const headerRow = rows && rows.length>0 ? rows[0] : [];
+          const detected = headerRow.map(h=>normalizeHeader(h)).filter(x=>x);
+          // compute missing by checking variants with substring matching
+          const missing = [];
+          for(const canon in expectedVariants){
+            const variants = expectedVariants[canon];
+            let matched = false;
+            for(const v of variants){
+              const nv = normalizeHeader(v);
+              for(const d of detected){
+                if(nv===d || nv.indexOf(d) !== -1 || d.indexOf(nv) !== -1){ matched = true; break; }
+              }
+              if(matched) break;
+            }
+            if(!matched) missing.push(canon);
+          }
+          lastValidated = { ok: missing.length===0, missing, detected };
+          showExcelValidation(lastValidated.ok, missing, detected);
+        }catch(err){
+          errorDiv.style.display='block'; errorDiv.textContent = 'Error leyendo el archivo: ' + err.message;
+          lastValidated = { ok:false, missing: ['(error lectura)'], detected: [] };
+        }
+      };
+      reader.onerror = function(){ errorDiv.style.display='block'; errorDiv.textContent = 'No se pudo leer el archivo'; };
+      // read as array buffer for xlsx
+      reader.readAsArrayBuffer(f);
+    });
+
+    uploadBtn.addEventListener('click', async function(){
+      resultDiv.style.display='none'; errorDiv.style.display='none';
+      const input = excelInput;
+      const file = input.files[0];
+      if(!file){ errorDiv.textContent='Selecciona un archivo.'; errorDiv.style.display='block'; return; }
+
+      // if SheetJS loaded and we validated, require OK
+      if(typeof XLSX !== 'undefined'){
+        if(!lastValidated.ok){ errorDiv.style.display='block'; errorDiv.innerHTML = '<strong>Error:</strong> El archivo no contiene todas las columnas requeridas. ' + (lastValidated.missing||[]).join(', '); return; }
+      }
+
+      const formData = new FormData(); formData.append('archivo', file);
+      try{
+        const resp = await fetch('http://localhost:8000/cargar-excel/', { method:'POST', body: formData });
+        const data = await resp.json();
+        if(resp.ok){ resultDiv.innerHTML = '<strong>OK:</strong> ' + (data.message || JSON.stringify(data)); resultDiv.style.display='block'; }
+        else { errorDiv.innerHTML = '<strong>Error:</strong> ' + (data.message || JSON.stringify(data)); errorDiv.style.display='block'; }
+      }catch(e){ errorDiv.textContent = 'Error de conexión: '+e.message; errorDiv.style.display='block'; }
+    });
+
+    // Initialize default values
+    document.addEventListener('DOMContentLoaded', ()=>{
+      document.getElementById('fechaCreacion').value = new Date().toISOString().split('T')[0];
+      // default OT id (editable)
+      const now = new Date();
+      const pad = (n)=> String(n).padStart(2,'0');
+      const defaultOt = `OT-${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+      const numeroOtEl = document.getElementById('numeroOt');
+      if(numeroOtEl) numeroOtEl.value = defaultOt;
+      showSection('ot');
+    });
+  </script>
+</body>
+</html>
