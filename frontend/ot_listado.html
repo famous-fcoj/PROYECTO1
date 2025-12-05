@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Visualizaciones OT - CONMETAL</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+    :root { --primary: #1f3b4b; --secondary: #2b6f9a; --accent: #3b82f6; --bg-main: #f1f5f9; --bg-card: #ffffff; --border: #e2e8f0; --text-main: #334155; --text-light: #64748b; --success: #10b981; --warning: #f59e0b; --danger: #ef4444; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg-main); color: var(--text-main); height: 100vh; display: flex; overflow: hidden; }
+    
+    .sidebar { width: 280px; background: var(--primary); color: white; display: flex; flex-direction: column; position: fixed; top: 0; bottom: 0; left: 0; z-index: 1000; box-shadow: 4px 0 15px rgba(0,0,0,0.1); }
+    .sidebar-header { padding: 28px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 20px; }
+    .logo-icon { width: 40px; height: 40px; background: var(--accent); border-radius: 10px; display: grid; place-items: center; }
+    .nav-links { padding: 24px 16px; flex: 1; }
+    .nav-item { display: flex; gap: 12px; padding: 12px 16px; color: #94a3b8; text-decoration: none; border-radius: 8px; margin-bottom: 4px; transition: 0.2s; font-size: 14px; font-weight: 500; align-items: center; }
+    .nav-item:hover { background: rgba(255,255,255,0.05); color: white; }
+    .nav-item.active { background: var(--accent); color: white; font-weight: 600; }
+
+    .content-area { margin-left: 280px; flex: 1; padding: 40px; overflow-y: auto; }
+    
+    .card { background: white; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border: 1px solid var(--border); overflow: hidden; max-width: 1200px; margin: 0 auto; }
+    .card-header { padding: 24px 32px; border-bottom: 1px solid var(--border); background: #fff; display: flex; justify-content: space-between; align-items: center; }
+    .card-title { font-size: 18px; font-weight: 700; color: var(--primary); }
+    
+    .table-wrapper { width: 100%; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th { background: #f8fafc; padding: 16px 24px; text-align: left; font-size: 11px; color: var(--text-light); text-transform: uppercase; font-weight: 600; border-bottom: 1px solid var(--border); }
+    td { padding: 16px 24px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    tr:hover { background: #f8fafc; }
+
+    .badge { padding: 5px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; display: inline-block; }
+    .badge-done { background: #dcedc8; color: #166534; border: 1px solid #166534; }
+    .badge-pending { background: #fff9c4; color: #854d0e; border: 1px solid #854d0e; }
+
+    .btn-icon { padding: 6px 10px; border-radius: 6px; border: none; cursor: pointer; margin-right: 5px; font-weight: bold; text-decoration: none; display: inline-flex; align-items: center; font-size: 12px; transition: 0.2s; }
+    .btn-excel { background: #dcfce7; color: #065f46; } .btn-excel:hover { background: #16a34a; color: white; }
+    .btn-edit { background: #dbeafe; color: #1e40af; } .btn-edit:hover { background: #2563eb; color: white; }
+    .btn-del { background: #fee2e2; color: #991b1b; } .btn-del:hover { background: #ef4444; color: white; }
+</style>
+</head>
+<body>
+<div class="sidebar">
+    <div class="sidebar-header"><div class="logo-icon">C</div> <span>CONMETAL</span></div>
+    <nav class="nav-links">
+        <a href="index.html" class="nav-item"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg> Ingreso OT</a>
+        <a href="ot_listado.html" class="nav-item active"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg> Visualizaciones OT</a>
+        <a href="ot_graficos.html" class="nav-item"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg> Reportes Gráficos</a>
+    </nav>
+</div>
+<div class="content-area">
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title">Historial de Órdenes</span>
+            <span style="font-size:12px; background:#f1f5f9; padding:6px 12px; border-radius:20px; font-weight:600; color:#64748b">Total: <span id="total">0</span></span>
+        </div>
+        <div class="table-wrapper">
+            <table id="otTable">
+                <thead><tr><th>Nº OT</th><th>Fecha</th><th>Máquina</th><th>Encargado</th><th>Estado</th><th>Acciones</th></tr></thead>
+                <tbody id="tbody"></tbody>
+            </table>
+            <div id="loading" style="text-align:center; padding:40px; color:#64748b;">Cargando...</div>
+        </div>
+    </div>
+</div>
+<script>
+    const API = 'http://127.0.0.1:8000/api';
+    async function load() {
+        try {
+            const res = await fetch(`${API}/lista-ots/`);
+            const data = await res.json();
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('total').textContent = data.ordenes.length;
+            const tb = document.getElementById('tbody');
+            tb.innerHTML = '';
+            if(!data.ordenes.length) { tb.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px">Sin registros</td></tr>'; return; }
+            data.ordenes.forEach(ot => {
+                const done = ot.estado === 'SÍ';
+                tb.insertAdjacentHTML('beforeend', `
+                    <tr id="r-${ot.ot}">
+                        <td style="font-weight:600; color:var(--primary)">${ot.ot}</td>
+                        <td>${ot.fecha}</td><td>${ot.maquina}</td><td>${ot.encargado}</td>
+                        <td><span class="badge ${done?'badge-done':'badge-pending'}">${done?'Finalizada':'Pendiente'}</span></td>
+                        <td>
+                            <button class="btn-icon btn-excel" onclick="location.href='${API}/exportar-excel/${ot.ot}/'" title="Excel">📥</button>
+                            <a href="index.html?editar=${ot.ot}" class="btn-icon btn-edit" title="Editar">✏️</a>
+                            <button class="btn-icon btn-del" onclick="del('${ot.ot}')" title="Eliminar">🗑️</button>
+                        </td>
+                    </tr>
+                `);
+            });
+        } catch(e) { document.getElementById('loading').innerHTML = 'Error conexión'; }
+    }
+    async function del(id) {
+        if(confirm(`¿Eliminar ${id}?`)) {
+            await fetch(`${API}/eliminar-ot/${id}/`, {method:'POST'});
+            document.getElementById(`r-${id}`).remove();
+        }
+    }
+    document.addEventListener('DOMContentLoaded', load);
+</script>
+</body>
+</html>
