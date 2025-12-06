@@ -5,7 +5,8 @@
 <title>Visualizaciones OT - CONMETAL</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-    :root { --primary: #1f3b4b; --secondary: #2b6f9a; --accent: #3b82f6; --bg-main: #f1f5f9; --bg-card: #ffffff; --border: #e2e8f0; --text-main: #334155; --text-light: #64748b; --success: #10b981; --warning: #f59e0b; --danger: #ef4444; }
+    /* MISMO ESTILO BASE */
+    :root { --primary: #1f3b4b; --secondary: #2b6f9a; --accent: #3b82f6; --bg-main: #f1f5f9; --bg-card: #ffffff; --border: #e2e8f0; --text-main: #334155; --text-light: #64748b; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Inter', sans-serif; background: var(--bg-main); color: var(--text-main); height: 100vh; display: flex; overflow: hidden; }
     
@@ -29,9 +30,12 @@
     td { padding: 16px 24px; border-bottom: 1px solid var(--border); vertical-align: middle; }
     tr:hover { background: #f8fafc; }
 
-    .badge { padding: 5px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; display: inline-block; }
-    .badge-done { background: #dcedc8; color: #166534; border: 1px solid #166534; }
-    .badge-pending { background: #fff9c4; color: #854d0e; border: 1px solid #854d0e; }
+    /* --- BADGES (ETIQUETAS DE ESTADO) --- */
+    .badge { padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; display: inline-block; letter-spacing: 0.5px; }
+    
+    .badge-PENDIENTE { background: #fffbeb; color: #b45309; border: 1px solid #fcd34d; }  /* Amarillo */
+    .badge-EN_PROCESO { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; } /* Azul */
+    .badge-FINALIZADA { background: #dcfce7; color: #166534; border: 1px solid #86efac; } /* Verde */
 
     .btn-icon { padding: 6px 10px; border-radius: 6px; border: none; cursor: pointer; margin-right: 5px; font-weight: bold; text-decoration: none; display: inline-flex; align-items: center; font-size: 12px; transition: 0.2s; }
     .btn-excel { background: #dcfce7; color: #065f46; } .btn-excel:hover { background: #16a34a; color: white; }
@@ -73,14 +77,29 @@
             document.getElementById('total').textContent = data.ordenes.length;
             const tb = document.getElementById('tbody');
             tb.innerHTML = '';
-            if(!data.ordenes.length) { tb.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px">Sin registros</td></tr>'; return; }
+            
+            if(!data.ordenes.length) { 
+                tb.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px">Sin registros</td></tr>'; 
+                return; 
+            }
+            
+            // DICCIONARIO PARA NOMBRES BONITOS
+            const estadoNombres = {
+                'PENDIENTE': 'En Espera',
+                'EN_PROCESO': 'En Ejecución',
+                'FINALIZADA': 'Finalizada'
+            };
+
             data.ordenes.forEach(ot => {
-                const done = ot.estado === 'SÍ';
+                // Usamos el estado que viene del backend (PENDIENTE, EN_PROCESO, etc.)
+                const estadoClass = `badge-${ot.estado}`; 
+                const estadoTexto = estadoNombres[ot.estado] || ot.estado;
+
                 tb.insertAdjacentHTML('beforeend', `
                     <tr id="r-${ot.ot}">
                         <td style="font-weight:600; color:var(--primary)">${ot.ot}</td>
                         <td>${ot.fecha}</td><td>${ot.maquina}</td><td>${ot.encargado}</td>
-                        <td><span class="badge ${done?'badge-done':'badge-pending'}">${done?'Finalizada':'Pendiente'}</span></td>
+                        <td><span class="badge ${estadoClass}">${estadoTexto}</span></td>
                         <td>
                             <button class="btn-icon btn-excel" onclick="location.href='${API}/exportar-excel/${ot.ot}/'" title="Excel">📥</button>
                             <a href="index.html?editar=${ot.ot}" class="btn-icon btn-edit" title="Editar">✏️</a>
@@ -91,10 +110,14 @@
             });
         } catch(e) { document.getElementById('loading').innerHTML = 'Error conexión'; }
     }
+    
     async function del(id) {
         if(confirm(`¿Eliminar ${id}?`)) {
-            await fetch(`${API}/eliminar-ot/${id}/`, {method:'POST'});
-            document.getElementById(`r-${id}`).remove();
+            try {
+                const res = await fetch(`${API}/eliminar-ot/${id}/`, {method:'POST'});
+                if(res.ok) document.getElementById(`r-${id}`).remove();
+                else alert("No se pudo eliminar");
+            } catch(e) { alert("Error al eliminar"); }
         }
     }
     document.addEventListener('DOMContentLoaded', load);

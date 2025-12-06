@@ -57,7 +57,8 @@ def recibir_orden_trabajo(request):
                 'fecha_revision': safe_cast(data, 'fechaRevision', date),
                 'recibido_por': data.get('recibidoPor'),
                 'observacion': data.get('observaciones'),
-                'mantencion_lograda': 'SÍ' if data.get('fechaRevision') else 'NO'
+                # CORRECCIÓN: Usamos 'estado' en lugar de 'mantencion_lograda'
+                'estado': data.get('estado', 'PENDIENTE')
             }
             ot_data = {k: v for k, v in ot_data.items() if v is not None}
             ot_num = ot_data.pop('ot')
@@ -90,7 +91,8 @@ def lista_ots_api(request):
             'fecha': o.fecha_inicio.strftime('%Y-%m-%d') if o.fecha_inicio else '-',
             'maquina': o.maquina,
             'encargado': o.encargado,
-            'estado': o.mantencion_lograda
+            # CORRECCIÓN: Leemos 'estado', ya no existe 'mantencion_lograda'
+            'estado': o.estado
         })
     return JsonResponse({'ordenes': data})
 
@@ -114,6 +116,8 @@ def detalle_ot_api(request, ot_num):
         'fechaRevision': ot.fecha_revision.strftime('%Y-%m-%d') if ot.fecha_revision else '',
         'recibidoPor': ot.recibido_por,
         'observaciones': ot.observacion,
+        # CORRECCIÓN: Agregamos el estado
+        'estado': ot.estado,
         'tareas': list(ot.tareas.values('detalle', 'tiempo_estimado', 'tiempo_real')),
         'repuestos': list(ot.repuestos.values('codigo', 'descripcion', 'cantidad')),
         'insumos': list(ot.insumos.values('codigo', 'descripcion', 'cantidad'))
@@ -134,7 +138,8 @@ def eliminar_ot_api(request, ot_num):
 
 # --- 5. RESUMEN ---
 def ot_resumen_api(request):
-    estado = OrdenTrabajo.objects.values('mantencion_lograda').annotate(total=Count('id'))
+    # CORRECCIÓN: Agrupamos por 'estado', ya no por 'mantencion_lograda'
+    estado = OrdenTrabajo.objects.values('estado').annotate(total=Count('id'))
     encargado = OrdenTrabajo.objects.values('encargado').annotate(total=Count('id')).order_by('-total')[:10]
     ubicacion = OrdenTrabajo.objects.values('ubicacion').annotate(total=Count('id')).order_by('-total')
     tipo = OrdenTrabajo.objects.values('tipo_accion').annotate(total=Count('id')).order_by('-total')
@@ -148,8 +153,12 @@ def ot_resumen_api(request):
 def exportar_ot_excel(request, ot_num):
     ot = get_object_or_404(OrdenTrabajo, ot=ot_num)
     wb = openpyxl.Workbook(); ws = wb.active; ws.title = f"OT_{ot.ot}"
-    # (Aquí va tu lógica de excel que ya tenías, resumida para caber)
     ws['A1'] = f"OT: {ot.ot}"
+    ws['A2'] = f"Máquina: {ot.maquina}"
+    ws['A3'] = f"Encargado: {ot.encargado}"
+    # CORRECCIÓN: Usamos el método para obtener el nombre legible del estado
+    ws['A4'] = f"Estado: {ot.get_estado_display()}" 
+    
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = f'attachment; filename="OT_{ot.ot}.xlsx"'
     wb.save(response)
@@ -160,19 +169,12 @@ def siguiente_folio_api(request):
     """
     Busca el primer número de OT disponible empezando desde el 1.
     Si existe OT-1, prueba OT-2. Si existe OT-2, prueba OT-3.
-    Si OT-2 fue borrada, la detectará como libre y la devolverá.
     """
     numero = 1
     while True:
         folio_candidato = f'OT-{numero}'
-        
-        # Consultamos si existe una OT con ese NOMBRE exacto.
-        # .exists() devuelve True si encuentra algo, False si está libre.
         if not OrdenTrabajo.objects.filter(ot=folio_candidato).exists():
-            # ¡Encontramos un hueco! Retornamos este folio.
             break
-            
-        # Si existe, probamos el siguiente número
         numero += 1
 
     return JsonResponse({'nuevo_folio': folio_candidato})

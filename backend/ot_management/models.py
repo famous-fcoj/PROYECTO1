@@ -3,9 +3,11 @@ from datetime import datetime
 from decimal import Decimal
 
 class OrdenTrabajo(models.Model):
-    MANTENCION_CHOICES = [
-        ('SÍ', 'Sí'),
-        ('NO', 'No'),
+    # Definimos los 3 estados posibles
+    ESTADOS_CHOICES = [
+        ('PENDIENTE', 'En Espera'),
+        ('EN_PROCESO', 'En Ejecución'),
+        ('FINALIZADA', 'Finalizada'),
     ]
     
     ot = models.CharField(max_length=20, unique=True) 
@@ -26,7 +28,10 @@ class OrdenTrabajo(models.Model):
     personas = models.IntegerField(default=1)
     hh = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     observacion = models.TextField(blank=True)
-    mantencion_lograda = models.CharField(max_length=2, choices=MANTENCION_CHOICES, default='NO')
+    
+    # CAMBIO PRINCIPAL: Nuevo campo 'estado' con valor por defecto PENDIENTE
+    estado = models.CharField(max_length=20, choices=ESTADOS_CHOICES, default='PENDIENTE')
+    
     revisado_por = models.CharField(max_length=100, blank=True)
     fecha_revision = models.DateField(null=True, blank=True)
     recibido_por = models.CharField(max_length=100, blank=True)

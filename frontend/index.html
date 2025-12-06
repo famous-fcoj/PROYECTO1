@@ -11,14 +11,13 @@
         --bg-body: #f1f5f9; --bg-card: #ffffff; --border: #e2e8f0;
         --text-primary: #0f172a; --text-secondary: #64748b;
         --success: #10b981; --warning: #f59e0b; --danger: #ef4444;
-        /* Colores de Inputs */
         --input-bg: #f8fafc; --input-focus: #ffffff;
     }
     
     * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
     body { font-family: 'Inter', sans-serif; background: var(--bg-body); color: var(--text-primary); height: 100vh; display: flex; overflow: hidden; }
 
-    /* SIDEBAR (Estilo Oscuro) */
+    /* SIDEBAR */
     .sidebar { width: 280px; background: var(--primary); color: white; display: flex; flex-direction: column; flex-shrink: 0; z-index: 100; box-shadow: 4px 0 10px rgba(0,0,0,0.3); position: fixed; top:0; bottom:0; left:0; }
     .sidebar-header { padding: 28px 24px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); }
     .logo-icon { width: 40px; height: 40px; background: var(--accent); border-radius: 8px; display: grid; place-items: center; font-weight: 800; font-size: 20px; }
@@ -239,11 +238,22 @@
                 if(res.ok) {
                     const data = await res.json();
                     const fields = ['numeroOt','fechaCreacion','equipoMaquina','descripcion','marca','ubicacion','modelo','tipoAccion','odometro','responsableEjecucion','fechaPlanificada','supervisor','revisadoPor','fechaRevision','recibidoPor','observaciones'];
+                    // Un diccionario para traducir las variables que tienen nombre distinto
+                    const keyMap = {
+                        'numeroOt': 'numero_ot',
+                        'equipoMaquina': 'equipo_maquina',
+                        'tipoAccion': 'tipo_accion',
+                        'responsableEjecucion': 'responsable_ejecucion'
+                    };
+
                     fields.forEach(id => {
                         const el = document.getElementById(id);
-                        const k = id === 'numeroOt' ? 'numero_ot' : id;
+                        // Si el ID está en el diccionario, usamos la traducción. Si no, usamos el ID normal.
+                        const k = keyMap[id] || id; 
+                        
                         if(el) el.value = data[k] || '';
                     });
+
                     ['tareas','repuestos','insumos'].forEach(t => {
                         document.getElementById(`${t}-container`).innerHTML = '';
                         addRow(t, data[t].length ? data[t] : null);
