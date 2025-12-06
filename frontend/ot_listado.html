@@ -7,7 +7,7 @@
 <style>
     /* MISMO ESTILO BASE */
     :root { --primary: #1f3b4b; --secondary: #2b6f9a; --accent: #3b82f6; --bg-main: #f1f5f9; --bg-card: #ffffff; --border: #e2e8f0; --text-main: #334155; --text-light: #64748b; }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
     body { font-family: 'Inter', sans-serif; background: var(--bg-main); color: var(--text-main); height: 100vh; display: flex; overflow: hidden; }
     
     .sidebar { width: 280px; background: var(--primary); color: white; display: flex; flex-direction: column; position: fixed; top: 0; bottom: 0; left: 0; z-index: 1000; box-shadow: 4px 0 15px rgba(0,0,0,0.1); }
@@ -21,9 +21,19 @@
     .content-area { margin-left: 280px; flex: 1; padding: 40px; overflow-y: auto; }
     
     .card { background: white; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border: 1px solid var(--border); overflow: hidden; max-width: 1200px; margin: 0 auto; }
-    .card-header { padding: 24px 32px; border-bottom: 1px solid var(--border); background: #fff; display: flex; justify-content: space-between; align-items: center; }
-    .card-title { font-size: 18px; font-weight: 700; color: var(--primary); }
     
+    /* HEADER CON BUSCADOR */
+    .card-header { padding: 20px 32px; border-bottom: 1px solid var(--border); background: #fff; display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+    .card-title { font-size: 18px; font-weight: 700; color: var(--primary); white-space: nowrap; }
+    
+    /* ESTILOS DEL BUSCADOR */
+    .search-container { position: relative; flex: 1; max-width: 350px; }
+    .search-input { width: 100%; padding: 10px 12px 10px 40px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; color: var(--text-main); background: #f8fafc; transition: 0.2s; }
+    .search-input:focus { border-color: var(--accent); background: #fff; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+    .search-icon-img { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-light); pointer-events: none; }
+
+    .total-badge { font-size: 12px; background: #f1f5f9; padding: 6px 12px; border-radius: 20px; font-weight: 600; color: var(--text-light); white-space: nowrap; }
+
     .table-wrapper { width: 100%; overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; font-size: 14px; }
     th { background: #f8fafc; padding: 16px 24px; text-align: left; font-size: 11px; color: var(--text-light); text-transform: uppercase; font-weight: 600; border-bottom: 1px solid var(--border); }
@@ -56,7 +66,13 @@
     <div class="card">
         <div class="card-header">
             <span class="card-title">Historial de Órdenes</span>
-            <span style="font-size:12px; background:#f1f5f9; padding:6px 12px; border-radius:20px; font-weight:600; color:#64748b">Total: <span id="total">0</span></span>
+            
+            <div class="search-container">
+                <svg class="search-icon-img" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                <input type="text" id="searchInput" class="search-input" placeholder="Buscar OT, Máquina, Encargado...">
+            </div>
+
+            <span class="total-badge">Total: <span id="total">0</span></span>
         </div>
         <div class="table-wrapper">
             <table id="otTable">
@@ -83,15 +99,9 @@
                 return; 
             }
             
-            // DICCIONARIO PARA NOMBRES BONITOS
-            const estadoNombres = {
-                'PENDIENTE': 'En Espera',
-                'EN_PROCESO': 'En Ejecución',
-                'FINALIZADA': 'Finalizada'
-            };
+            const estadoNombres = { 'PENDIENTE': 'En Espera', 'EN_PROCESO': 'En Ejecución', 'FINALIZADA': 'Finalizada' };
 
             data.ordenes.forEach(ot => {
-                // Usamos el estado que viene del backend (PENDIENTE, EN_PROCESO, etc.)
                 const estadoClass = `badge-${ot.estado}`; 
                 const estadoTexto = estadoNombres[ot.estado] || ot.estado;
 
@@ -111,12 +121,37 @@
         } catch(e) { document.getElementById('loading').innerHTML = 'Error conexión'; }
     }
     
+    // LÓGICA DEL BUSCADOR EN TIEMPO REAL
+    document.getElementById('searchInput').addEventListener('input', function(e) {
+        const term = e.target.value.toLowerCase();
+        const rows = document.querySelectorAll('#tbody tr');
+        let visibleCount = 0;
+
+        rows.forEach(row => {
+            // Buscamos en todo el texto de la fila (incluye OT, fecha, maquina, encargado y estado)
+            const text = row.innerText.toLowerCase();
+            if(text.includes(term)) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+        
+        // Actualizamos el contador total según lo que se ve
+        document.getElementById('total').textContent = visibleCount;
+    });
+
     async function del(id) {
         if(confirm(`¿Eliminar ${id}?`)) {
             try {
                 const res = await fetch(`${API}/eliminar-ot/${id}/`, {method:'POST'});
-                if(res.ok) document.getElementById(`r-${id}`).remove();
-                else alert("No se pudo eliminar");
+                if(res.ok) {
+                    document.getElementById(`r-${id}`).remove();
+                    // Actualizar contador tras borrar
+                    const currentTotal = parseInt(document.getElementById('total').textContent);
+                    document.getElementById('total').textContent = Math.max(0, currentTotal - 1);
+                } else alert("No se pudo eliminar");
             } catch(e) { alert("Error al eliminar"); }
         }
     }

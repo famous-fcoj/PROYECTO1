@@ -67,6 +67,7 @@
     }
     input:focus, select:focus, textarea:focus { border-color: var(--accent); background: white; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
     
+    /* Colores inputs especiales */
     .bg-yellow { background-color: #fffbeb; border-color: #fcd34d; }
     .bg-green { background-color: #f0fdf4; border-color: #86efac; }
 
@@ -80,9 +81,19 @@
     .modern-table th { background: #f8fafc; padding: 12px 16px; text-align: left; font-size: 11px; color: var(--text-secondary); text-transform: uppercase; font-weight: 600; border-bottom: 1px solid var(--border); }
     .modern-table td { padding: 10px 16px; border-bottom: 1px solid var(--border); background: #fff; vertical-align: middle;}
     
-    .table-input { width: 100%; padding: 8px; border: 1px solid transparent; background: transparent; }
-    .table-input:hover { background: #f1f5f9; border-radius: 4px; }
-    .table-input:focus { background: white; border: 1px solid var(--accent); border-radius: 4px; }
+    /* INPUTS DE TABLA UNIFICADOS */
+    .table-input { 
+        width: 100%; 
+        padding: 8px 10px; 
+        border: 1px solid var(--border); 
+        border-radius: 6px; 
+        background: var(--input-bg); 
+        font-size: 14px;
+        color: var(--text-primary);
+        transition: 0.2s;
+    }
+    .table-input:hover { background: #f1f5f9; }
+    .table-input:focus { background: white; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
     
     .btn-del { width: 32px; height: 32px; background: #fef2f2; color: var(--danger); border: 1px solid #fee2e2; border-radius: 6px; display: grid; place-items: center; cursor: pointer; transition: 0.2s; flex-shrink: 0; }
     .btn-del:hover { background: var(--danger); color: white; border-color: var(--danger); }
@@ -119,9 +130,9 @@
             
             <div class="ot-badge-group">
                 <select id="estado" class="status-select">
-                    <option value="PENDIENTE">⏳ En Espera</option>
-                    <option value="EN_PROCESO">🔨 En Ejecución</option>
-                    <option value="FINALIZADA">✅ Finalizada</option>
+                    <option value="PENDIENTE">En Espera</option>
+                    <option value="EN_PROCESO">En Ejecución</option>
+                    <option value="FINALIZADA">Finalizada</option>
                 </select>
 
                 <div class="ot-badge">
@@ -201,11 +212,11 @@
 <script>
     const API_BASE = 'http://127.0.0.1:8000';
     
-    // CAMBIOS AQUÍ: Se agregó style="flex:1" a los inputs de cantidad y tiempo para que ocupen el espacio
+    // TEMPLATES
     const rowTemplates = {
         tareas: (i, d={}) => `<tr><td style="text-align:center;font-weight:bold;color:#ccc">${i}</td><td><input type="text" name="tarea-detalle" class="table-input" value="${d.detalle||''}"></td><td><input type="number" name="tarea-tiempoEstimado" class="table-input" value="${d.tiempo_estimado||''}"></td><td><div style="display:flex; gap:8px"><input type="number" style="flex:1" name="tarea-tiempoReal" class="table-input" value="${d.tiempo_real||''}"><button type="button" class="btn-del" onclick="removeRow(this)">×</button></div></td></tr>`,
-        repuestos: (i, d={}) => `<tr><td style="text-align:center;font-weight:bold;color:#ccc">${i}</td><td><input type="text" class="table-input bg-green" name="repuesto-codigo" value="${d.codigo||''}"></td><td><input type="text" class="table-input bg-yellow" name="repuesto-desc" value="${d.descripcion||''}"></td><td><div style="display:flex; gap:8px"><input type="number" style="flex:1" name="repuesto-cantidad" class="table-input" value="${d.cantidad||''}"><button type="button" class="btn-del" onclick="removeRow(this)">×</button></div></td></tr>`,
-        insumos: (i, d={}) => `<tr><td style="text-align:center;font-weight:bold;color:#ccc">${i}</td><td><input type="text" class="table-input bg-green" name="insumo-codigo" value="${d.codigo||''}"></td><td><input type="text" class="table-input bg-yellow" name="insumo-desc" value="${d.descripcion||''}"></td><td><div style="display:flex; gap:8px"><input type="number" style="flex:1" name="insumo-cantidad" class="table-input" value="${d.cantidad||''}"><button type="button" class="btn-del" onclick="removeRow(this)">×</button></div></td></tr>`
+        repuestos: (i, d={}) => `<tr><td style="text-align:center;font-weight:bold;color:#ccc">${i}</td><td><input type="text" class="table-input" name="repuesto-codigo" value="${d.codigo||''}"></td><td><input type="text" class="table-input" name="repuesto-desc" value="${d.descripcion||''}"></td><td><div style="display:flex; gap:8px"><input type="number" style="flex:1" name="repuesto-cantidad" class="table-input" value="${d.cantidad||''}"><button type="button" class="btn-del" onclick="removeRow(this)">×</button></div></td></tr>`,
+        insumos: (i, d={}) => `<tr><td style="text-align:center;font-weight:bold;color:#ccc">${i}</td><td><input type="text" class="table-input" name="insumo-codigo" value="${d.codigo||''}"></td><td><input type="text" class="table-input" name="insumo-desc" value="${d.descripcion||''}"></td><td><div style="display:flex; gap:8px"><input type="number" style="flex:1" name="insumo-cantidad" class="table-input" value="${d.cantidad||''}"><button type="button" class="btn-del" onclick="removeRow(this)">×</button></div></td></tr>`
     };
 
     function addRow(type, data) {
@@ -249,8 +260,9 @@
             const res = await fetch(`${API_BASE}/recibir-orden/`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
             const json = await res.json();
             if(json.status === 'success') {
-                alert('✅ GUARDADO');
-                if(!location.search.includes('editar')) location.reload();
+                alert('Orden de trabajo actualizada correctamente.');
+                // REDIRECCIÓN AUTOMÁTICA AL LISTADO
+                window.location.href = 'ot_listado.html';
             } else throw new Error(json.message);
         } catch(e) { alert('Error: '+e.message); }
         finally { btn.disabled = false; btn.textContent = 'Guardar Orden'; }
@@ -283,7 +295,7 @@
                         document.getElementById(`${t}-container`).innerHTML = '';
                         addRow(t, data[t].length ? data[t] : null);
                     });
-                    document.getElementById('btnEnviar').textContent = '🔄 Actualizar Orden';
+                    document.getElementById('btnEnviar').textContent = 'Actualizar Orden de Trabajo';
                 }
             } catch(e) {}
         } else {
