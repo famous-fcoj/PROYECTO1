@@ -78,12 +78,13 @@
 
     .modern-table { width: 100%; border-collapse: separate; border-spacing: 0; margin-bottom: 24px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
     .modern-table th { background: #f8fafc; padding: 12px 16px; text-align: left; font-size: 11px; color: var(--text-secondary); text-transform: uppercase; font-weight: 600; border-bottom: 1px solid var(--border); }
-    .modern-table td { padding: 10px 16px; border-bottom: 1px solid var(--border); background: #fff; }
+    .modern-table td { padding: 10px 16px; border-bottom: 1px solid var(--border); background: #fff; vertical-align: middle;}
+    
     .table-input { width: 100%; padding: 8px; border: 1px solid transparent; background: transparent; }
     .table-input:hover { background: #f1f5f9; border-radius: 4px; }
     .table-input:focus { background: white; border: 1px solid var(--accent); border-radius: 4px; }
     
-    .btn-del { width: 32px; height: 32px; background: #fef2f2; color: var(--danger); border: 1px solid #fee2e2; border-radius: 6px; display: grid; place-items: center; cursor: pointer; transition: 0.2s; }
+    .btn-del { width: 32px; height: 32px; background: #fef2f2; color: var(--danger); border: 1px solid #fee2e2; border-radius: 6px; display: grid; place-items: center; cursor: pointer; transition: 0.2s; flex-shrink: 0; }
     .btn-del:hover { background: var(--danger); color: white; border-color: var(--danger); }
 
     .form-footer { padding: 24px 32px; background: #f8fafc; border-top: 1px solid var(--border); text-align: right; }
@@ -157,7 +158,7 @@
                 <button type="button" class="btn-add" onclick="addRow('tareas')">+ Agregar</button>
             </div>
             <table class="modern-table">
-                <thead><tr><th width="40" style="text-align:center">#</th><th>Detalle</th><th width="140">Tiempo Est.</th><th width="140">Tiempo Real</th><th width="40"></th></tr></thead>
+                <thead><tr><th width="40" style="text-align:center">#</th><th>Detalle</th><th width="140">Tiempo Est. (Hrs)</th><th width="140">Tiempo Real (Hrs)</th><th width="40"></th></tr></thead>
                 <tbody id="tareas-container"></tbody>
             </table>
 
@@ -166,7 +167,7 @@
                 <button type="button" class="btn-add" onclick="addRow('repuestos')">+ Agregar</button>
             </div>
             <table class="modern-table">
-                <thead><tr><th width="40" style="text-align:center">#</th><th width="150">Código</th><th>Descripción</th><th width="100">Cant.</th><th width="40"></th></tr></thead>
+                <thead><tr><th width="40" style="text-align:center">#</th><th width="150">Código</th><th>Descripción</th><th width="130">Cant.</th><th width="40"></th></tr></thead>
                 <tbody id="repuestos-container"></tbody>
             </table>
 
@@ -175,7 +176,7 @@
                 <button type="button" class="btn-add" onclick="addRow('insumos')">+ Agregar</button>
             </div>
             <table class="modern-table">
-                <thead><tr><th width="40" style="text-align:center">#</th><th width="150">Código</th><th>Descripción</th><th width="100">Cant.</th><th width="40"></th></tr></thead>
+                <thead><tr><th width="40" style="text-align:center">#</th><th width="150">Código</th><th>Descripción</th><th width="130">Cant.</th><th width="40"></th></tr></thead>
                 <tbody id="insumos-container"></tbody>
             </table>
 
@@ -199,10 +200,12 @@
 
 <script>
     const API_BASE = 'http://127.0.0.1:8000';
+    
+    // CAMBIOS AQUÍ: Se agregó style="flex:1" a los inputs de cantidad y tiempo para que ocupen el espacio
     const rowTemplates = {
-        tareas: (i, d={}) => `<tr><td style="text-align:center;font-weight:bold;color:#ccc">${i}</td><td><input type="text" name="tarea-detalle" class="table-input" value="${d.detalle||''}"></td><td><input type="number" name="tarea-tiempoEstimado" class="table-input" value="${d.tiempo_estimado||''}"></td><td><div style="display:flex; gap:8px"><input type="number" name="tarea-tiempoReal" class="table-input" value="${d.tiempo_real||''}"><button type="button" class="btn-del" onclick="removeRow(this)">×</button></div></td></tr>`,
-        repuestos: (i, d={}) => `<tr><td style="text-align:center;font-weight:bold;color:#ccc">${i}</td><td><input type="text" class="table-input bg-green" name="repuesto-codigo" value="${d.codigo||''}"></td><td><input type="text" class="table-input bg-yellow" name="repuesto-desc" value="${d.descripcion||''}"></td><td><div style="display:flex; gap:8px"><input type="number" name="repuesto-cantidad" class="table-input" value="${d.cantidad||''}"><button type="button" class="btn-del" onclick="removeRow(this)">×</button></div></td></tr>`,
-        insumos: (i, d={}) => `<tr><td style="text-align:center;font-weight:bold;color:#ccc">${i}</td><td><input type="text" class="table-input bg-green" name="insumo-codigo" value="${d.codigo||''}"></td><td><input type="text" class="table-input bg-yellow" name="insumo-desc" value="${d.descripcion||''}"></td><td><div style="display:flex; gap:8px"><input type="number" name="insumo-cantidad" class="table-input" value="${d.cantidad||''}"><button type="button" class="btn-del" onclick="removeRow(this)">×</button></div></td></tr>`
+        tareas: (i, d={}) => `<tr><td style="text-align:center;font-weight:bold;color:#ccc">${i}</td><td><input type="text" name="tarea-detalle" class="table-input" value="${d.detalle||''}"></td><td><input type="number" name="tarea-tiempoEstimado" class="table-input" value="${d.tiempo_estimado||''}"></td><td><div style="display:flex; gap:8px"><input type="number" style="flex:1" name="tarea-tiempoReal" class="table-input" value="${d.tiempo_real||''}"><button type="button" class="btn-del" onclick="removeRow(this)">×</button></div></td></tr>`,
+        repuestos: (i, d={}) => `<tr><td style="text-align:center;font-weight:bold;color:#ccc">${i}</td><td><input type="text" class="table-input bg-green" name="repuesto-codigo" value="${d.codigo||''}"></td><td><input type="text" class="table-input bg-yellow" name="repuesto-desc" value="${d.descripcion||''}"></td><td><div style="display:flex; gap:8px"><input type="number" style="flex:1" name="repuesto-cantidad" class="table-input" value="${d.cantidad||''}"><button type="button" class="btn-del" onclick="removeRow(this)">×</button></div></td></tr>`,
+        insumos: (i, d={}) => `<tr><td style="text-align:center;font-weight:bold;color:#ccc">${i}</td><td><input type="text" class="table-input bg-green" name="insumo-codigo" value="${d.codigo||''}"></td><td><input type="text" class="table-input bg-yellow" name="insumo-desc" value="${d.descripcion||''}"></td><td><div style="display:flex; gap:8px"><input type="number" style="flex:1" name="insumo-cantidad" class="table-input" value="${d.cantidad||''}"><button type="button" class="btn-del" onclick="removeRow(this)">×</button></div></td></tr>`
     };
 
     function addRow(type, data) {
@@ -236,7 +239,7 @@
         btn.disabled = true; btn.textContent = 'Guardando...';
         const payload = {
             numero_ot: getVal('numeroOt'), 
-            estado: getVal('estado'), // ENVÍAMOS EL ESTADO SELECCIONADO
+            estado: getVal('estado'), 
             fechaCreacion: getVal('fechaCreacion'), equipo_maquina: getVal('equipoMaquina'), descripcion: getVal('descripcion'), marca: getVal('marca'), ubicacion: getVal('ubicacion'), modelo: getVal('modelo'), tipo_accion: getVal('tipoAccion'), odometro: getVal('odometro'), responsable_ejecucion: getVal('responsableEjecucion'), fechaPlanificada: getVal('fechaPlanificada'), supervisor: getVal('supervisor'), revisadoPor: getVal('revisadoPor'), fechaRevision: getVal('fechaRevision'), recibidoPor: getVal('recibidoPor'), observaciones: getVal('observaciones'),
             tareas: getTableData('tareas', {detalle:'tarea-detalle', tiempo_estimado:'tarea-tiempoEstimado', tiempo_real:'tarea-tiempoReal'}),
             repuestos: getTableData('repuestos', {codigo:'repuesto-codigo', descripcion:'repuesto-desc', cantidad:'repuesto-cantidad'}),
@@ -285,7 +288,6 @@
             } catch(e) {}
         } else {
             document.getElementById('fechaCreacion').value = new Date().toISOString().split('T')[0];
-            // POR DEFECTO NUEVA OT = EN ESPERA
             document.getElementById('estado').value = 'PENDIENTE';
             try {
                 const res = await fetch(`${API_BASE}/api/siguiente-folio/`);
