@@ -6,8 +6,9 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse, HttpResponse
 from datetime import datetime, date
 from decimal import Decimal
-from django.db.models import Count
+from django.db.models import Count, Sum
 from .models import OrdenTrabajo, Tarea, Repuesto, Insumo 
+from django.db.models.functions import TruncMonth
 
 # --- HELPER ---
 def safe_cast(data, field_name, cast_type):
@@ -134,17 +135,57 @@ def eliminar_ot_api(request, ot_num):
     return JsonResponse({'status': 'error'}, status=400)
 
 # --- 5. RESUMEN ---
+# --- 5. RESUMEN (DATOS INTELIGENTES PARA DASHBOARD) ---
 def ot_resumen_api(request):
-    estado = OrdenTrabajo.objects.values('estado').annotate(total=Count('id'))
-    encargado = OrdenTrabajo.objects.values('encargado').annotate(total=Count('id')).order_by('-total')[:10]
-    ubicacion = OrdenTrabajo.objects.values('ubicacion').annotate(total=Count('id')).order_by('-total')
-    tipo = OrdenTrabajo.objects.values('tipo_accion').annotate(total=Count('id')).order_by('-total')
-    maquina = OrdenTrabajo.objects.values('maquina').annotate(total=Count('id')).order_by('-total')[:10]
-    return JsonResponse({
-        'resumen_estado': list(estado), 'resumen_encargado': list(encargado),
-        'resumen_ubicacion': list(ubicacion), 'resumen_tipo': list(tipo), 'resumen_maquina': list(maquina)
-    })
+    # 1. KPIs (Agregamos En Proceso)
+    total_ots = OrdenTrabajo.objects.count()
+    pendientes = OrdenTrabajo.objects.filter(estado='PENDIENTE').count()
+    proceso = OrdenTrabajo.objects.filter(estado='EN_PROCESO').count()
+    finalizadas = OrdenTrabajo.objects.filter(estado='FINALIZADA').count()
+    
+    # 2. Tipos de Falla (Lógica Pareto: Top 5 + Otros)
+    # Esto evita que el gráfico explote si hay 200 tipos distintos
+    all_types = OrdenTrabajo.objects.values('tipo_falla').annotate(total=Count('id')).order_by('-total')
+    top_types = list(all_types[:5]) # Tomamos los 5 principales
+    
+    # Sumamos el resto en una categoría "Otros"
+    rest_count = sum(item['total'] for item in all_types[5:])
+    if rest_count > 0:
+        top_types.append({'tipo_falla': 'Otros (Varios)', 'total': rest_count})
 
+    # 3. Evolución de Esfuerzo (Horas Hombre)
+    # Reemplazamos el conteo simple por Suma de HH, que es un indicador financiero/recurso más útil
+    evolucion = OrdenTrabajo.objects.annotate(mes=TruncMonth('fecha_inicio'))\
+                                    .values('mes')\
+                                    .annotate(total_hh=Sum('hh'))\
+                                    .order_by('mes')
+    
+    evolucion_data = []
+    for e in evolucion:
+        if e['mes']:
+            evolucion_data.append({
+                'mes': e['mes'].strftime('%Y-%m'), 
+                'total': float(e['total_hh'] or 0) # Convertimos a float para JS
+            })
+
+    # 4. Top Máquinas (Count)
+    maquina = OrdenTrabajo.objects.values('maquina').annotate(total=Count('id')).order_by('-total')[:5]
+    
+    # 5. Estado General
+    estado = OrdenTrabajo.objects.values('estado').annotate(total=Count('id'))
+
+    return JsonResponse({
+        'resumen_estado': list(estado),
+        'resumen_maquina': list(maquina),
+        'resumen_tipo': top_types, # Enviamos la lista filtrada
+        'evolucion_mensual': evolucion_data,
+        'kpis': {
+            'total': total_ots,
+            'pendientes': pendientes,
+            'proceso': proceso, # Nuevo KPI
+            'finalizadas': finalizadas
+        }
+    })
 # --- 6. EXCEL PROFESIONAL (DISEÑO MEJORADO) ---
 def exportar_ot_excel(request, ot_num):
     ot = get_object_or_404(OrdenTrabajo, ot=ot_num)
@@ -367,4 +408,4 @@ def siguiente_folio_api(request):
         if not OrdenTrabajo.objects.filter(ot=folio_candidato).exists():
             break
         numero += 1
-    return JsonResponse({'nuevo_folio': folio_candidato})
+    return JsonResponse({'nuevo_folio': folio_candidato})   

@@ -2,89 +2,245 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<title>Reportes - CONMETAL</title>
+<title>Dashboard Gerencial - CONMETAL</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
-    :root { --primary: #1f3b4b; --secondary: #334155; --accent: #3b82f6; --bg-main: #f1f5f9; --bg-card: #ffffff; --border: #e2e8f0; --text-main: #334155; }
+    :root { 
+        --primary: #1f3b4b; --secondary: #334155; --accent: #3b82f6; 
+        --bg-main: #f8fafc; --bg-card: #ffffff; --border: #e2e8f0; 
+        --text-main: #1e293b; --text-muted: #64748b;
+        /* Colores Gráficos */
+        --chart-blue: #3b82f6; --chart-green: #10b981; --chart-red: #ef4444; --chart-orange: #f59e0b; --chart-purple: #8b5cf6;
+    }
+    
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Inter', sans-serif; background: var(--bg-main); margin: 0; height: 100vh; display: flex; overflow: hidden; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg-main); color: var(--text-main); height: 100vh; display: flex; overflow: hidden; }
     
+    /* SIDEBAR */
     .sidebar { width: 280px; background: var(--primary); color: white; display: flex; flex-direction: column; position: fixed; top: 0; bottom: 0; left: 0; z-index: 1000; box-shadow: 4px 0 15px rgba(0,0,0,0.1); }
-    .main-content { margin-left: 280px; padding: 40px; flex: 1; overflow-y: auto; }
-    
     .sidebar-header { padding: 28px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 20px; }
-    .logo-icon { width: 40px; height: 40px; background: var(--accent); border-radius: 8px; display: grid; place-items: center; }
+    .logo-icon { width: 40px; height: 40px; background: var(--accent); border-radius: 10px; display: grid; place-items: center; }
     .nav-links { padding: 24px 16px; flex: 1; }
     .nav-item { display: flex; gap: 12px; padding: 12px 16px; color: #94a3b8; text-decoration: none; border-radius: 8px; margin-bottom: 4px; transition: 0.2s; font-size: 14px; font-weight: 500; align-items: center; }
     .nav-item:hover { background: rgba(255,255,255,0.05); color: white; }
     .nav-item.active { background: var(--accent); color: white; font-weight: 600; }
+    
+    /* CONTENIDO */
+    .main-content { margin-left: 280px; padding: 30px 40px; flex: 1; overflow-y: auto; }
+    
+    .header-page { margin-bottom: 30px; display: flex; justify-content: space-between; align-items: end; }
+    .page-title { font-size: 24px; font-weight: 800; color: var(--primary); letter-spacing: -0.5px; }
+    .page-subtitle { font-size: 14px; color: var(--text-muted); font-weight: 500; margin-top: 4px; }
+    .date-badge { background: white; padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border); font-size: 13px; font-weight: 600; color: var(--text-muted); box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
 
-    .grid-charts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 30px; max-width: 1400px; margin: 0 auto; }
-    .full { grid-column: 1 / -1; }
-    .card { background: white; padding: 25px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
-    .chart-title { text-align: center; font-weight: 700; color: var(--primary); text-transform: uppercase; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #e2e8f0; font-size: 16px; }
-    .chart-box { position: relative; height: 300px; }
-    .no-data { height: 100%; display: flex; align-items: center; justify-content: center; color: #999; font-style: italic; }
+    /* KPI CARDS - Ahora son 4 columnas exactas */
+    .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-bottom: 30px; }
+    .kpi-card { background: white; padding: 20px 24px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.02); display: flex; flex-direction: column; justify-content: space-between; height: 110px; transition: transform 0.2s; border-left: 4px solid transparent; }
+    .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .kpi-label { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .kpi-value { font-size: 32px; font-weight: 800; color: var(--primary); margin-top: 5px; }
+    .kpi-icon { align-self: flex-end; width: 32px; height: 32px; border-radius: 8px; display: grid; place-items: center; font-size: 16px; }
+    
+    /* Colores Específicos */
+    .kpi-blue { border-left-color: var(--chart-blue); } .kpi-blue .kpi-icon { background: #eff6ff; color: var(--chart-blue); }
+    .kpi-orange { border-left-color: var(--chart-orange); } .kpi-orange .kpi-icon { background: #fff7ed; color: var(--chart-orange); }
+    .kpi-purple { border-left-color: var(--chart-purple); } .kpi-purple .kpi-icon { background: #f5f3ff; color: var(--chart-purple); }
+    .kpi-green { border-left-color: var(--chart-green); } .kpi-green .kpi-icon { background: #ecfdf5; color: var(--chart-green); }
+
+    /* GRIDS GRÁFICOS */
+    .charts-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-bottom: 24px; }
+    
+    .chart-card { background: white; border-radius: 12px; border: 1px solid var(--border); padding: 24px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); display: flex; flex-direction: column; }
+    .chart-header { margin-bottom: 20px; }
+    .chart-title { font-size: 16px; font-weight: 700; color: var(--primary); }
+    .chart-subtitle { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+    .chart-container { position: relative; height: 300px; width: 100%; }
+
 </style>
 </head>
 <body>
+
 <div class="sidebar">
     <div class="sidebar-header"><div class="logo-icon">C</div> <span>CONMETAL</span></div>
     <nav class="nav-links">
         <a href="index.html" class="nav-item"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg> Ingreso OT</a>
         <a href="ot_listado.html" class="nav-item"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg> Visualizaciones OT</a>
-        <a href="ot_graficos.html" class="nav-item active"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg> Reportes Gráficos</a>
+        <a href="ot_graficos.html" class="nav-item active"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2-2h-2m-2-4h.01M17 16h.01"></path></svg> Reportes Gráficos</a>
     </nav>
 </div>
 
 <div class="main-content">
-    <div class="grid-charts">
-        <div class="card"><div class="chart-title">Estado de Órdenes</div><div class="chart-box"><canvas id="c1"></canvas></div></div>
-        <div class="card"><div class="chart-title">Tipos de Falla</div><div class="chart-box"><canvas id="c2"></canvas></div></div>
-        <div class="card"><div class="chart-title">Ubicación</div><div class="chart-box"><canvas id="c3"></canvas></div></div>
-        <div class="card"><div class="chart-title">Top Encargados</div><div class="chart-box"><canvas id="c4"></canvas></div></div>
-        <div class="card full"><div class="chart-title">Máquinas Críticas</div><div class="chart-box"><canvas id="c5"></canvas></div></div>
+    <div class="header-page">
+        <div>
+            <div class="page-title">Dashboard de Mantenimiento</div>
+            <div class="page-subtitle">Indicadores clave de gestión (KPIs)</div>
+        </div>
+        <div class="date-badge" id="fechaHoy">...</div>
+    </div>
+
+    <div class="kpi-grid">
+        <div class="kpi-card kpi-blue">
+            <div><div class="kpi-label">Total Órdenes</div><div class="kpi-value" id="kpi-total">0</div></div>
+            <div class="kpi-icon">📋</div>
+        </div>
+        <div class="kpi-card kpi-orange">
+            <div><div class="kpi-label">Pendientes</div><div class="kpi-value" id="kpi-pendientes">0</div></div>
+            <div class="kpi-icon">⏳</div>
+        </div>
+        <div class="kpi-card kpi-purple"> <div><div class="kpi-label">En Ejecución</div><div class="kpi-value" id="kpi-proceso">0</div></div>
+            <div class="kpi-icon">⚙️</div>
+        </div>
+        <div class="kpi-card kpi-green">
+            <div><div class="kpi-label">Finalizadas</div><div class="kpi-value" id="kpi-finalizadas">0</div></div>
+            <div class="kpi-icon">✅</div>
+        </div>
+    </div>
+
+    <div class="charts-grid">
+        <div class="chart-card">
+            <div class="chart-header">
+                <div class="chart-title">Consumo de Recursos (Horas Hombre)</div>
+                <div class="chart-subtitle">Tendencia mensual de esfuerzo invertido en mantenimiento</div>
+            </div>
+            <div class="chart-container"><canvas id="chartEvolucion"></canvas></div>
+        </div>
+        
+        <div class="chart-card">
+            <div class="chart-header">
+                <div class="chart-title">Top 5 Tipos de Falla</div>
+                <div class="chart-subtitle">Distribución de las incidencias más frecuentes</div>
+            </div>
+            <div class="chart-container" style="height:250px"><canvas id="chartFallas"></canvas></div>
+        </div>
+    </div>
+
+    <div class="charts-grid">
+        <div class="chart-card">
+            <div class="chart-header">
+                <div class="chart-title">Equipos Críticos (Top 5)</div>
+                <div class="chart-subtitle">Máquinas con mayor cantidad de intervenciones</div>
+            </div>
+            <div class="chart-container"><canvas id="chartMaquinas"></canvas></div>
+        </div>
+
+        <div class="chart-card">
+            <div class="chart-header"><div class="chart-title">Estado Global de OTs</div></div>
+            <div class="chart-container" style="height:250px"><canvas id="chartEstado"></canvas></div>
+        </div>
     </div>
 </div>
 
 <script>
+    document.getElementById('fechaHoy').textContent = new Date().toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
     document.addEventListener('DOMContentLoaded', async () => {
         try {
             const res = await fetch('http://127.0.0.1:8000/api/ot-resumen/');
-            const d = await res.json();
+            const data = await res.json();
+
+            // 1. Asignar KPIs
+            document.getElementById('kpi-total').textContent = data.kpis.total;
+            document.getElementById('kpi-pendientes').textContent = data.kpis.pendientes;
+            document.getElementById('kpi-proceso').textContent = data.kpis.proceso; // Valor nuevo
+            document.getElementById('kpi-finalizadas').textContent = data.kpis.finalizadas;
+
+            // Configuración Global Chart.js
             Chart.defaults.font.family = "'Inter', sans-serif";
             Chart.defaults.color = '#64748b';
+            Chart.defaults.scale.grid.color = '#f1f5f9';
+            
+            // 2. Gráfico Evolución (Horas Hombre)
+            new Chart(document.getElementById('chartEvolucion'), {
+                type: 'bar', // Barras verticales se ven mejor para volúmenes de horas
+                data: {
+                    labels: data.evolucion_mensual.map(x => x.mes),
+                    datasets: [{
+                        label: 'Horas Hombre Invertidas',
+                        data: data.evolucion_mensual.map(x => x.total),
+                        backgroundColor: '#3b82f6',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { 
+                        y: { beginAtZero: true, grid: { borderDash: [5, 5] } }, 
+                        x: { grid: { display: false } } 
+                    }
+                }
+            });
 
-            const render = (id, type, labels, data, bg, idx='x') => {
-                const ctx = document.getElementById(id).getContext('2d');
-                if(!data.length) { ctx.canvas.parentNode.innerHTML = '<div class="no-data">Sin datos</div>'; return; }
-                new Chart(ctx, {
-                    type: type,
-                    data: { labels: labels, datasets: [{ data: data, backgroundColor: bg }] },
-                    options: { maintainAspectRatio: false, indexAxis: idx, plugins: { legend: { display: type!=='bar', position: 'right' } } }
-                });
-            };
+            // 3. Gráfico Tipos de Falla (Pareto Top 5 + Otros)
+            new Chart(document.getElementById('chartFallas'), {
+                type: 'doughnut',
+                data: {
+                    // Si viene vacío pone 'Sin datos'
+                    labels: data.resumen_tipo.length ? data.resumen_tipo.map(x => x.tipo_falla || 'N/A') : ['Sin datos'],
+                    datasets: [{
+                        data: data.resumen_tipo.length ? data.resumen_tipo.map(x => x.total) : [1],
+                        backgroundColor: ['#6366f1', '#ec4899', '#f59e0b', '#10b981', '#ef4444', '#cbd5e1'],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'right', labels: { usePointStyle: true, boxWidth: 8 } } },
+                    cutout: '70%'
+                }
+            });
 
-            // 1. GRAFICO DE ESTADOS (Corregido para usar PENDIENTE/EN_PROCESO/FINALIZADA)
-            // Diccionario para etiquetas bonitas
+            // 4. Gráfico Máquinas (Barras Horizontales ENTERAS)
+            new Chart(document.getElementById('chartMaquinas'), {
+                type: 'bar',
+                data: {
+                    labels: data.resumen_maquina.map(x => x.maquina),
+                    datasets: [{
+                        label: 'Intervenciones',
+                        data: data.resumen_maquina.map(x => x.total),
+                        backgroundColor: '#1f3b4b',
+                        borderRadius: 4,
+                        barThickness: 25
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { 
+                        x: { 
+                            beginAtZero: true,
+                            ticks: { stepSize: 1 } // <--- ESTO ARREGLA EL 0.1, 0.2... FORZANDO ENTEROS
+                        } 
+                    }
+                }
+            });
+
+            // 5. Gráfico Estado
             const mapEstado = { 'PENDIENTE': 'En Espera', 'EN_PROCESO': 'En Ejecución', 'FINALIZADA': 'Finalizada' };
-            const colorEstado = { 'PENDIENTE': '#f59e0b', 'EN_PROCESO': '#3b82f6', 'FINALIZADA': '#10b981' }; // Amarillo, Azul, Verde
+            const colorEstado = { 'PENDIENTE': '#f59e0b', 'EN_PROCESO': '#8b5cf6', 'FINALIZADA': '#10b981' }; // En ejecución morado
             
-            // Transformamos los datos
-            const labelsEstados = d.resumen_estado.map(x => mapEstado[x.estado] || x.estado);
-            const dataEstados = d.resumen_estado.map(x => x.total);
-            const colorsEstados = d.resumen_estado.map(x => colorEstado[x.estado] || '#ccc');
+            new Chart(document.getElementById('chartEstado'), {
+                type: 'pie',
+                data: {
+                    labels: data.resumen_estado.map(x => mapEstado[x.estado] || x.estado),
+                    datasets: [{
+                        data: data.resumen_estado.map(x => x.total),
+                        backgroundColor: data.resumen_estado.map(x => colorEstado[x.estado] || '#ccc'),
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } } }
+                }
+            });
 
-            render('c1', 'doughnut', labelsEstados, dataEstados, colorsEstados);
-            
-            // Resto de graficos (estos siguen igual)
-            render('c2', 'pie', d.resumen_tipo.map(x=>x.tipo_accion), d.resumen_tipo.map(x=>x.total), ['#6366f1','#ec4899','#8b5cf6']);
-            render('c3', 'bar', d.resumen_ubicacion.map(x=>x.ubicacion), d.resumen_ubicacion.map(x=>x.total), '#2b6f9a', 'y');
-            render('c4', 'bar', d.resumen_encargado.map(x=>x.encargado), d.resumen_encargado.map(x=>x.total_ot), '#1f3b4b');
-            render('c5', 'bar', d.resumen_maquina.map(x=>x.maquina), d.resumen_maquina.map(x=>x.total), '#f59e0b', 'y');
-
-        } catch(e) { console.error(e); }
+        } catch(e) { console.error("Error cargando gráficos:", e); }
     });
 </script>
 </body>
