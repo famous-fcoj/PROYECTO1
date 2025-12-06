@@ -39,9 +39,21 @@
 
     .form-header { padding: 24px 32px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: #fff; }
     .form-title { font-size: 18px; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 10px; }
+    
+    /* GRUPO DEL FOLIO Y ESTADO */
+    .ot-badge-group { display: flex; align-items: center; gap: 20px; }
+    
     .ot-badge { background: var(--primary); color: white; padding: 8px 16px; border-radius: 8px; text-align: right; }
     .ot-label { font-size: 10px; text-transform: uppercase; opacity: 0.7; font-weight: 600; }
     .ot-input { background: transparent; border: none; color: white; font-weight: 700; font-size: 16px; width: 140px; text-align: right; }
+
+    /* ESTILO DEL SELECTOR DE ESTADO */
+    .status-select { 
+        padding: 8px 12px; border-radius: 6px; border: 2px solid var(--border); 
+        font-weight: 700; color: var(--primary); cursor: pointer; background: #fff;
+        font-size: 14px; outline: none;
+    }
+    .status-select:focus { border-color: var(--accent); }
 
     .form-body { padding: 32px; }
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }
@@ -103,9 +115,18 @@
                 <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color:var(--accent)"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
                 Detalle de la Orden
             </div>
-            <div class="ot-badge">
-                <div class="ot-label">NUMERO DE ORDEN DE TRABAJO</div>
-                <input type="text" id="numeroOt" name="numeroOt" class="ot-input" readonly placeholder="...">
+            
+            <div class="ot-badge-group">
+                <select id="estado" class="status-select">
+                    <option value="PENDIENTE">⏳ En Espera</option>
+                    <option value="EN_PROCESO">🔨 En Ejecución</option>
+                    <option value="FINALIZADA">✅ Finalizada</option>
+                </select>
+
+                <div class="ot-badge">
+                    <div class="ot-label">NUMERO DE ORDEN DE TRABAJO</div>
+                    <input type="text" id="numeroOt" name="numeroOt" class="ot-input" readonly placeholder="...">
+                </div>
             </div>
         </div>
 
@@ -214,7 +235,9 @@
         const btn = document.getElementById('btnEnviar');
         btn.disabled = true; btn.textContent = 'Guardando...';
         const payload = {
-            numero_ot: getVal('numeroOt'), fechaCreacion: getVal('fechaCreacion'), equipo_maquina: getVal('equipoMaquina'), descripcion: getVal('descripcion'), marca: getVal('marca'), ubicacion: getVal('ubicacion'), modelo: getVal('modelo'), tipo_accion: getVal('tipoAccion'), odometro: getVal('odometro'), responsable_ejecucion: getVal('responsableEjecucion'), fechaPlanificada: getVal('fechaPlanificada'), supervisor: getVal('supervisor'), revisadoPor: getVal('revisadoPor'), fechaRevision: getVal('fechaRevision'), recibidoPor: getVal('recibidoPor'), observaciones: getVal('observaciones'),
+            numero_ot: getVal('numeroOt'), 
+            estado: getVal('estado'), // ENVÍAMOS EL ESTADO SELECCIONADO
+            fechaCreacion: getVal('fechaCreacion'), equipo_maquina: getVal('equipoMaquina'), descripcion: getVal('descripcion'), marca: getVal('marca'), ubicacion: getVal('ubicacion'), modelo: getVal('modelo'), tipo_accion: getVal('tipoAccion'), odometro: getVal('odometro'), responsable_ejecucion: getVal('responsableEjecucion'), fechaPlanificada: getVal('fechaPlanificada'), supervisor: getVal('supervisor'), revisadoPor: getVal('revisadoPor'), fechaRevision: getVal('fechaRevision'), recibidoPor: getVal('recibidoPor'), observaciones: getVal('observaciones'),
             tareas: getTableData('tareas', {detalle:'tarea-detalle', tiempo_estimado:'tarea-tiempoEstimado', tiempo_real:'tarea-tiempoReal'}),
             repuestos: getTableData('repuestos', {codigo:'repuesto-codigo', descripcion:'repuesto-desc', cantidad:'repuesto-cantidad'}),
             insumos: getTableData('insumos', {codigo:'insumo-codigo', descripcion:'insumo-desc', cantidad:'insumo-cantidad'})
@@ -237,20 +260,19 @@
                 const res = await fetch(`${API_BASE}/api/detalle-ot/${editId}/`);
                 if(res.ok) {
                     const data = await res.json();
-                    const fields = ['numeroOt','fechaCreacion','equipoMaquina','descripcion','marca','ubicacion','modelo','tipoAccion','odometro','responsableEjecucion','fechaPlanificada','supervisor','revisadoPor','fechaRevision','recibidoPor','observaciones'];
-                    // Un diccionario para traducir las variables que tienen nombre distinto
+                    const fields = ['numeroOt','fechaCreacion','equipoMaquina','descripcion','marca','ubicacion','modelo','tipoAccion','odometro','responsableEjecucion','fechaPlanificada','supervisor','revisadoPor','fechaRevision','recibidoPor','observaciones', 'estado'];
+                    
                     const keyMap = {
                         'numeroOt': 'numero_ot',
                         'equipoMaquina': 'equipo_maquina',
                         'tipoAccion': 'tipo_accion',
-                        'responsableEjecucion': 'responsable_ejecucion'
+                        'responsableEjecucion': 'responsable_ejecucion',
+                        'estado': 'estado'
                     };
 
                     fields.forEach(id => {
                         const el = document.getElementById(id);
-                        // Si el ID está en el diccionario, usamos la traducción. Si no, usamos el ID normal.
                         const k = keyMap[id] || id; 
-                        
                         if(el) el.value = data[k] || '';
                     });
 
@@ -263,6 +285,8 @@
             } catch(e) {}
         } else {
             document.getElementById('fechaCreacion').value = new Date().toISOString().split('T')[0];
+            // POR DEFECTO NUEVA OT = EN ESPERA
+            document.getElementById('estado').value = 'PENDIENTE';
             try {
                 const res = await fetch(`${API_BASE}/api/siguiente-folio/`);
                 if(res.ok) {
