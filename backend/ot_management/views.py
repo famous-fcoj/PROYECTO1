@@ -155,8 +155,24 @@ def exportar_ot_excel(request, ot_num):
     wb.save(response)
     return response
 
-# --- 7. SIGUIENTE FOLIO (¡NUEVO!) ---
+# --- 7. SIGUIENTE FOLIO ---
 def siguiente_folio_api(request):
-    last = OrdenTrabajo.objects.order_by('id').last()
-    new_id = (last.id + 1) if last else 1
-    return JsonResponse({'nuevo_folio': f'OT-{new_id}'})
+    """
+    Busca el primer número de OT disponible empezando desde el 1.
+    Si existe OT-1, prueba OT-2. Si existe OT-2, prueba OT-3.
+    Si OT-2 fue borrada, la detectará como libre y la devolverá.
+    """
+    numero = 1
+    while True:
+        folio_candidato = f'OT-{numero}'
+        
+        # Consultamos si existe una OT con ese NOMBRE exacto.
+        # .exists() devuelve True si encuentra algo, False si está libre.
+        if not OrdenTrabajo.objects.filter(ot=folio_candidato).exists():
+            # ¡Encontramos un hueco! Retornamos este folio.
+            break
+            
+        # Si existe, probamos el siguiente número
+        numero += 1
+
+    return JsonResponse({'nuevo_folio': folio_candidato})
