@@ -6,7 +6,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse, HttpResponse
 from datetime import datetime, date
 from decimal import Decimal
-from django.db.models import Count, Sum
+from django.db.models import Count, Sum, Q
 from .models import OrdenTrabajo, Tarea, Repuesto, Insumo 
 from django.db.models.functions import TruncMonth
 
@@ -135,57 +135,51 @@ def eliminar_ot_api(request, ot_num):
     return JsonResponse({'status': 'error'}, status=400)
 
 # --- 5. RESUMEN ---
-# --- 5. RESUMEN (DATOS INTELIGENTES PARA DASHBOARD) ---
 def ot_resumen_api(request):
-    # 1. KPIs (Agregamos En Proceso)
+    # 1. KPIs
     total_ots = OrdenTrabajo.objects.count()
     pendientes = OrdenTrabajo.objects.filter(estado='PENDIENTE').count()
     proceso = OrdenTrabajo.objects.filter(estado='EN_PROCESO').count()
     finalizadas = OrdenTrabajo.objects.filter(estado='FINALIZADA').count()
     
-    # 2. Tipos de Falla (Lógica Pareto: Top 5 + Otros)
-    # Esto evita que el gráfico explote si hay 200 tipos distintos
+    # 2. Tipos de Falla (Pareto Top 5)
     all_types = OrdenTrabajo.objects.values('tipo_falla').annotate(total=Count('id')).order_by('-total')
-    top_types = list(all_types[:5]) # Tomamos los 5 principales
+    top_types = list(all_types[:5])
     
-    # Sumamos el resto en una categoría "Otros"
+    # Sumamos el resto en "Otros"
     rest_count = sum(item['total'] for item in all_types[5:])
     if rest_count > 0:
-        top_types.append({'tipo_falla': 'Otros (Varios)', 'total': rest_count})
+        top_types.append({'tipo_falla': 'Otros', 'total': rest_count})
 
-    # 3. Evolución de Esfuerzo (Horas Hombre)
-    # Reemplazamos el conteo simple por Suma de HH, que es un indicador financiero/recurso más útil
-    evolucion = OrdenTrabajo.objects.annotate(mes=TruncMonth('fecha_inicio'))\
-                                    .values('mes')\
-                                    .annotate(total_hh=Sum('hh'))\
-                                    .order_by('mes')
-    
-    evolucion_data = []
-    for e in evolucion:
-        if e['mes']:
-            evolucion_data.append({
-                'mes': e['mes'].strftime('%Y-%m'), 
-                'total': float(e['total_hh'] or 0) # Convertimos a float para JS
-            })
+    # 3. CARGA LABORAL POR ENCARGADO (Gráfico Barras Apiladas)
+    # Esta es la lógica nueva que reemplaza a la "Evolución Mensual"
+    carga = OrdenTrabajo.objects.values('encargado').annotate(
+        total=Count('id'),
+        pendientes=Count('id', filter=Q(estado='PENDIENTE')),
+        proceso=Count('id', filter=Q(estado='EN_PROCESO')),
+        finalizadas=Count('id', filter=Q(estado='FINALIZADA'))
+    ).order_by('-total')[:7] # Top 7 encargados
 
-    # 4. Top Máquinas (Count)
+    # 4. Top Máquinas
     maquina = OrdenTrabajo.objects.values('maquina').annotate(total=Count('id')).order_by('-total')[:5]
     
     # 5. Estado General
     estado = OrdenTrabajo.objects.values('estado').annotate(total=Count('id'))
 
+    # UN SOLO RETURN AL FINAL
     return JsonResponse({
         'resumen_estado': list(estado),
         'resumen_maquina': list(maquina),
-        'resumen_tipo': top_types, # Enviamos la lista filtrada
-        'evolucion_mensual': evolucion_data,
+        'resumen_tipo': top_types,
+        'carga_laboral': list(carga), # Enviamos los datos para el gráfico de barras apiladas
         'kpis': {
             'total': total_ots,
             'pendientes': pendientes,
-            'proceso': proceso, # Nuevo KPI
+            'proceso': proceso,
             'finalizadas': finalizadas
         }
     })
+
 # --- 6. EXCEL PROFESIONAL (DISEÑO MEJORADO) ---
 def exportar_ot_excel(request, ot_num):
     ot = get_object_or_404(OrdenTrabajo, ot=ot_num)

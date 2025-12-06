@@ -18,7 +18,6 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Inter', sans-serif; background: var(--bg-main); color: var(--text-main); height: 100vh; display: flex; overflow: hidden; }
     
-    /* SIDEBAR */
     .sidebar { width: 280px; background: var(--primary); color: white; display: flex; flex-direction: column; position: fixed; top: 0; bottom: 0; left: 0; z-index: 1000; box-shadow: 4px 0 15px rgba(0,0,0,0.1); }
     .sidebar-header { padding: 28px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 20px; }
     .logo-icon { width: 40px; height: 40px; background: var(--accent); border-radius: 10px; display: grid; place-items: center; }
@@ -27,7 +26,6 @@
     .nav-item:hover { background: rgba(255,255,255,0.05); color: white; }
     .nav-item.active { background: var(--accent); color: white; font-weight: 600; }
     
-    /* CONTENIDO */
     .main-content { margin-left: 280px; padding: 30px 40px; flex: 1; overflow-y: auto; }
     
     .header-page { margin-bottom: 30px; display: flex; justify-content: space-between; align-items: end; }
@@ -35,7 +33,6 @@
     .page-subtitle { font-size: 14px; color: var(--text-muted); font-weight: 500; margin-top: 4px; }
     .date-badge { background: white; padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border); font-size: 13px; font-weight: 600; color: var(--text-muted); box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
 
-    /* KPI CARDS - Ahora son 4 columnas exactas */
     .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-bottom: 30px; }
     .kpi-card { background: white; padding: 20px 24px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.02); display: flex; flex-direction: column; justify-content: space-between; height: 110px; transition: transform 0.2s; border-left: 4px solid transparent; }
     .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
@@ -43,21 +40,17 @@
     .kpi-value { font-size: 32px; font-weight: 800; color: var(--primary); margin-top: 5px; }
     .kpi-icon { align-self: flex-end; width: 32px; height: 32px; border-radius: 8px; display: grid; place-items: center; font-size: 16px; }
     
-    /* Colores Específicos */
     .kpi-blue { border-left-color: var(--chart-blue); } .kpi-blue .kpi-icon { background: #eff6ff; color: var(--chart-blue); }
     .kpi-orange { border-left-color: var(--chart-orange); } .kpi-orange .kpi-icon { background: #fff7ed; color: var(--chart-orange); }
     .kpi-purple { border-left-color: var(--chart-purple); } .kpi-purple .kpi-icon { background: #f5f3ff; color: var(--chart-purple); }
     .kpi-green { border-left-color: var(--chart-green); } .kpi-green .kpi-icon { background: #ecfdf5; color: var(--chart-green); }
 
-    /* GRIDS GRÁFICOS */
     .charts-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-bottom: 24px; }
-    
     .chart-card { background: white; border-radius: 12px; border: 1px solid var(--border); padding: 24px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); display: flex; flex-direction: column; }
     .chart-header { margin-bottom: 20px; }
     .chart-title { font-size: 16px; font-weight: 700; color: var(--primary); }
     .chart-subtitle { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
     .chart-container { position: relative; height: 300px; width: 100%; }
-
 </style>
 </head>
 <body>
@@ -75,7 +68,7 @@
     <div class="header-page">
         <div>
             <div class="page-title">Dashboard de Mantenimiento</div>
-            <div class="page-subtitle">Indicadores clave de gestión (KPIs)</div>
+            <div class="page-subtitle">Indicadores clave de desempeño</div>
         </div>
         <div class="date-badge" id="fechaHoy">...</div>
     </div>
@@ -89,7 +82,8 @@
             <div><div class="kpi-label">Pendientes</div><div class="kpi-value" id="kpi-pendientes">0</div></div>
             <div class="kpi-icon">⏳</div>
         </div>
-        <div class="kpi-card kpi-purple"> <div><div class="kpi-label">En Ejecución</div><div class="kpi-value" id="kpi-proceso">0</div></div>
+        <div class="kpi-card kpi-purple">
+            <div><div class="kpi-label">En Ejecución</div><div class="kpi-value" id="kpi-proceso">0</div></div>
             <div class="kpi-icon">⚙️</div>
         </div>
         <div class="kpi-card kpi-green">
@@ -101,16 +95,16 @@
     <div class="charts-grid">
         <div class="chart-card">
             <div class="chart-header">
-                <div class="chart-title">Consumo de Recursos (Horas Hombre)</div>
-                <div class="chart-subtitle">Tendencia mensual de esfuerzo invertido en mantenimiento</div>
+                <div class="chart-title">Desempeño y Carga Laboral por Encargado</div>
+                <div class="chart-subtitle">Estado de órdenes asignadas por técnico</div>
             </div>
-            <div class="chart-container"><canvas id="chartEvolucion"></canvas></div>
+            <div class="chart-container"><canvas id="chartCarga"></canvas></div>
         </div>
         
         <div class="chart-card">
             <div class="chart-header">
                 <div class="chart-title">Top 5 Tipos de Falla</div>
-                <div class="chart-subtitle">Distribución de las incidencias más frecuentes</div>
+                <div class="chart-subtitle">Distribución de incidencias</div>
             </div>
             <div class="chart-container" style="height:250px"><canvas id="chartFallas"></canvas></div>
         </div>
@@ -120,13 +114,13 @@
         <div class="chart-card">
             <div class="chart-header">
                 <div class="chart-title">Equipos Críticos (Top 5)</div>
-                <div class="chart-subtitle">Máquinas con mayor cantidad de intervenciones</div>
+                <div class="chart-subtitle">Máquinas con mayor tasa de falla</div>
             </div>
             <div class="chart-container"><canvas id="chartMaquinas"></canvas></div>
         </div>
 
         <div class="chart-card">
-            <div class="chart-header"><div class="chart-title">Estado Global de OTs</div></div>
+            <div class="chart-header"><div class="chart-title">Estado Global</div></div>
             <div class="chart-container" style="height:250px"><canvas id="chartEstado"></canvas></div>
         </div>
     </div>
@@ -140,44 +134,56 @@
             const res = await fetch('http://127.0.0.1:8000/api/ot-resumen/');
             const data = await res.json();
 
-            // 1. Asignar KPIs
             document.getElementById('kpi-total').textContent = data.kpis.total;
             document.getElementById('kpi-pendientes').textContent = data.kpis.pendientes;
-            document.getElementById('kpi-proceso').textContent = data.kpis.proceso; // Valor nuevo
+            document.getElementById('kpi-proceso').textContent = data.kpis.proceso;
             document.getElementById('kpi-finalizadas').textContent = data.kpis.finalizadas;
 
-            // Configuración Global Chart.js
             Chart.defaults.font.family = "'Inter', sans-serif";
             Chart.defaults.color = '#64748b';
             Chart.defaults.scale.grid.color = '#f1f5f9';
             
-            // 2. Gráfico Evolución (Horas Hombre)
-            new Chart(document.getElementById('chartEvolucion'), {
-                type: 'bar', // Barras verticales se ven mejor para volúmenes de horas
+            // --- GRÁFICO 1: CARGA LABORAL (Barras Apiladas) ---
+            new Chart(document.getElementById('chartCarga'), {
+                type: 'bar',
                 data: {
-                    labels: data.evolucion_mensual.map(x => x.mes),
-                    datasets: [{
-                        label: 'Horas Hombre Invertidas',
-                        data: data.evolucion_mensual.map(x => x.total),
-                        backgroundColor: '#3b82f6',
-                        borderRadius: 4
-                    }]
+                    labels: data.carga_laboral.map(x => x.encargado),
+                    datasets: [
+                        {
+                            label: 'Finalizadas',
+                            data: data.carga_laboral.map(x => x.finalizadas),
+                            backgroundColor: '#10b981', // Verde
+                            borderRadius: 4
+                        },
+                        {
+                            label: 'En Ejecución',
+                            data: data.carga_laboral.map(x => x.proceso),
+                            backgroundColor: '#8b5cf6', // Morado
+                            borderRadius: 4
+                        },
+                        {
+                            label: 'Pendientes',
+                            data: data.carga_laboral.map(x => x.pendientes),
+                            backgroundColor: '#f59e0b', // Naranja
+                            borderRadius: 4
+                        }
+                    ]
                 },
                 options: {
+                    responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: { 
-                        y: { beginAtZero: true, grid: { borderDash: [5, 5] } }, 
-                        x: { grid: { display: false } } 
-                    }
+                    scales: {
+                        x: { stacked: true },
+                        y: { stacked: true, beginAtZero: true, ticks: { stepSize: 1 } }
+                    },
+                    plugins: { legend: { position: 'top' } }
                 }
             });
 
-            // 3. Gráfico Tipos de Falla (Pareto Top 5 + Otros)
+            // --- GRÁFICO 2: FALLAS ---
             new Chart(document.getElementById('chartFallas'), {
                 type: 'doughnut',
                 data: {
-                    // Si viene vacío pone 'Sin datos'
                     labels: data.resumen_tipo.length ? data.resumen_tipo.map(x => x.tipo_falla || 'N/A') : ['Sin datos'],
                     datasets: [{
                         data: data.resumen_tipo.length ? data.resumen_tipo.map(x => x.total) : [1],
@@ -193,7 +199,7 @@
                 }
             });
 
-            // 4. Gráfico Máquinas (Barras Horizontales ENTERAS)
+            // --- GRÁFICO 3: MAQUINAS ---
             new Chart(document.getElementById('chartMaquinas'), {
                 type: 'bar',
                 data: {
@@ -210,18 +216,13 @@
                     indexAxis: 'y',
                     maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
-                    scales: { 
-                        x: { 
-                            beginAtZero: true,
-                            ticks: { stepSize: 1 } // <--- ESTO ARREGLA EL 0.1, 0.2... FORZANDO ENTEROS
-                        } 
-                    }
+                    scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } }
                 }
             });
 
-            // 5. Gráfico Estado
+            // --- GRÁFICO 4: ESTADO ---
             const mapEstado = { 'PENDIENTE': 'En Espera', 'EN_PROCESO': 'En Ejecución', 'FINALIZADA': 'Finalizada' };
-            const colorEstado = { 'PENDIENTE': '#f59e0b', 'EN_PROCESO': '#8b5cf6', 'FINALIZADA': '#10b981' }; // En ejecución morado
+            const colorEstado = { 'PENDIENTE': '#f59e0b', 'EN_PROCESO': '#8b5cf6', 'FINALIZADA': '#10b981' };
             
             new Chart(document.getElementById('chartEstado'), {
                 type: 'pie',
@@ -240,7 +241,7 @@
                 }
             });
 
-        } catch(e) { console.error("Error cargando gráficos:", e); }
+        } catch(e) { console.error("Error:", e); }
     });
 </script>
 </body>
