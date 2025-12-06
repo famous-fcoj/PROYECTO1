@@ -12,7 +12,9 @@ from django.db.models.functions import TruncMonth
 from django.template.loader import get_template
 from xhtml2pdf import pisa
 
-# --- HELPER ---
+# --- FUNCIONES AUXILIARES ---
+# Convierte y valida datos entrantes
+# Si el dato no es válido, retorna None o un valor por defecto
 def safe_cast(data, field_name, cast_type):
     value = data.get(field_name)
     if value in (None, '', 'null'): return None
@@ -32,7 +34,7 @@ def safe_cast(data, field_name, cast_type):
         except: return Decimal(0)
     return str(value).strip()
 
-# --- 1. GUARDAR ---
+# recepción de datos de la OT desde el frontend
 @csrf_exempt 
 def recibir_orden_trabajo(request): 
     if request.method == 'POST':
@@ -41,7 +43,7 @@ def recibir_orden_trabajo(request):
             tareas = data.pop('tareas', [])
             repuestos = data.pop('repuestos', [])
             insumos = data.pop('insumos', [])
-            
+            # Construcción del diccionario de datos para la OT
             ot_data = {
                 'ot': data.get('numero_ot'),
                 'encargado': data.get('responsable_ejecucion'),
@@ -64,26 +66,26 @@ def recibir_orden_trabajo(request):
             }
             ot_data = {k: v for k, v in ot_data.items() if v is not None}
             ot_num = ot_data.pop('ot')
-            
+            # Guardamos o actualizamos la OT
             ot_obj, created = OrdenTrabajo.objects.get_or_create(ot=ot_num, defaults=ot_data)
             if not created:
                 for k, v in ot_data.items(): setattr(ot_obj, k, v)
                 ot_obj.save()
-            
+            # Limpiamos tareas, repuestos e insumos previos
             ot_obj.tareas.all().delete()
             ot_obj.repuestos.all().delete()
             ot_obj.insumos.all().delete()
-            
+            # Agregamos las nuevas tareas, repuestos e insumos
             for i, t in enumerate(tareas, 1): Tarea.objects.create(orden=ot_obj, numero_item=i, **t)
             for i, r in enumerate(repuestos, 1): Repuesto.objects.create(orden=ot_obj, numero_item=i, **r)
             for i, ins in enumerate(insumos, 1): Insumo.objects.create(orden=ot_obj, numero_item=i, **ins)
-
+            # Respuesta exitosa
             return JsonResponse({'status': 'success', 'message': 'Guardado OK', 'numero_ot': ot_obj.ot})
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
     return JsonResponse({'error': 'Method not allowed'}, status=405)
 
-# --- 2. LISTAR ---
+# lista de todas las órdenes de trabajo
 def lista_ots_api(request):
     # Traemos todas las órdenes sin importar el orden de creación
     ordenes = OrdenTrabajo.objects.all()
@@ -105,11 +107,13 @@ def lista_ots_api(request):
     except:
         # En caso de error, ordenamos alfabéticamente
         data.sort(key=lambda x: x['ot'])
-
     return JsonResponse({'ordenes': data})
-# --- 3. DETALLE ---
+
+
+# detalle de una OT específica
 def detalle_ot_api(request, ot_num):
     ot = get_object_or_404(OrdenTrabajo, ot=ot_num)
+    # Construimos el diccionario de datos
     data = {
         'numero_ot': ot.ot,
         'fechaCreacion': ot.fecha_inicio.strftime('%Y-%m-%d') if ot.fecha_inicio else '',
@@ -134,7 +138,7 @@ def detalle_ot_api(request, ot_num):
     }
     return JsonResponse(data)
 
-# --- 4. ELIMINAR ---
+# eliminar una OT específica
 @csrf_exempt
 def eliminar_ot_api(request, ot_num):
     if request.method == 'POST':
@@ -146,7 +150,7 @@ def eliminar_ot_api(request, ot_num):
             return JsonResponse({'status': 'error'}, status=404)
     return JsonResponse({'status': 'error'}, status=400)
 
-# --- 5. RESUMEN ---
+# resumen de OTs para dashboard
 def ot_resumen_api(request):
     # 1. KPIs
     total_ots = OrdenTrabajo.objects.count()
@@ -190,7 +194,7 @@ def ot_resumen_api(request):
         }
     })
 
-# --- 6. EXCEL PROFESIONAL ---
+# exportar OT a Excel
 def exportar_ot_excel(request, ot_num):
     ot = get_object_or_404(OrdenTrabajo, ot=ot_num)
     
@@ -268,10 +272,9 @@ def exportar_ot_excel(request, ot_num):
         c4.alignment = left
         c4.border = border_cell
 
-    # --- DATOS GENERALES ---
+    # datos básicos de la OT
     f_creacion = ot.fecha_inicio.strftime('%d/%m/%Y') if ot.fecha_inicio else '-'
     f_plan = ot.fecha_planificada.strftime('%d/%m/%Y') if ot.fecha_planificada else '-'
-    
     draw_form_row(current_row, "Fecha Emisión", f_creacion, "Equipo / Máquina", ot.maquina)
     current_row += 1
     
@@ -288,7 +291,7 @@ def exportar_ot_excel(request, ot_num):
     ws.cell(row=current_row, column=4).border = border_cell
     ws.cell(row=current_row, column=5).border = border_cell
     current_row += 1
-
+    
     draw_form_row(current_row, "Marca", ot.marca, "Modelo", ot.modelo)
     current_row += 1
     draw_form_row(current_row, "Ubicación", ot.ubicacion, "Tipo Acción", ot.tipo_accion)
@@ -301,7 +304,7 @@ def exportar_ot_excel(request, ot_num):
 
     current_row += 2 
 
-    # --- TABLAS DETALLE ---
+# tablas de Tareas, Repuestos e Insumos
     
     def draw_section_header(row, title):
         ws.merge_cells(f'A{row}:E{row}')

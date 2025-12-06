@@ -5,108 +5,62 @@
 <title>Ingreso OT - CONMETAL</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-    /* --- ESTILO MODERNO UNIFICADO --- */
+    /* --- CONFIGURACIÓN GLOBAL --- */
     :root {
         --primary: #1f3b4b; --secondary: #334155; --accent: #3b82f6;
         --bg-body: #f1f5f9; --bg-card: #ffffff; --border: #e2e8f0;
         --text-primary: #0f172a; --text-secondary: #64748b;
         --success: #10b981; --warning: #f59e0b; --danger: #ef4444;
-        --input-bg: #f8fafc; --input-focus: #ffffff;
+        --input-bg: #f8fafc;
     }
     
     * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
     body { font-family: 'Inter', sans-serif; background: var(--bg-body); color: var(--text-primary); height: 100vh; display: flex; overflow: hidden; }
 
-    /* SIDEBAR */
-    .sidebar { width: 280px; background: var(--primary); color: white; display: flex; flex-direction: column; flex-shrink: 0; z-index: 100; box-shadow: 4px 0 10px rgba(0,0,0,0.3); position: fixed; top:0; bottom:0; left:0; }
-    .sidebar-header { padding: 28px 24px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); }
-    
+    /* --- LAYOUT & SIDEBAR --- */
+    .sidebar { width: 280px; background: var(--primary); color: white; display: flex; flex-direction: column; flex-shrink: 0; position: fixed; top: 0; bottom: 0; left: 0; z-index: 1000; box-shadow: 4px 0 15px rgba(0,0,0,0.1); }
+    .sidebar-header { padding: 28px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 20px; }
     .logo-img { width: 40px; height: 40px; object-fit: contain; border-radius: 8px; background: white; padding: 2px; }
 
-    .nav-links { padding: 24px 12px; flex: 1; }
-    .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: #94a3b8; text-decoration: none; border-radius: 8px; margin-bottom: 4px; font-size: 14px; font-weight: 500; transition: 0.2s; }
-    .nav-item:hover { background: rgba(255,255,255,0.08); color: white; }
+    .nav-links { padding: 24px 16px; flex: 1; }
+    .nav-item { display: flex; gap: 12px; padding: 12px 16px; color: #94a3b8; text-decoration: none; border-radius: 8px; margin-bottom: 4px; transition: 0.2s; font-size: 14px; font-weight: 500; align-items: center; }
+    .nav-item:hover { background: rgba(255,255,255,0.05); color: white; }
     .nav-item.active { background: var(--accent); color: white; font-weight: 600; }
 
-    /* CONTENIDO */
+    /* --- ÁREA PRINCIPAL --- */
     .content-area { margin-left: 280px; flex: 1; padding: 40px; overflow-y: auto; display: flex; justify-content: center; align-items: flex-start; }
+    .form-card { background: var(--bg-card); width: 100%; max-width: 1000px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border: 1px solid var(--border); overflow: hidden; margin-bottom: 50px; }
 
-    /* TARJETA FORMULARIO */
-    .form-card { 
-        background: var(--bg-card); width: 100%; max-width: 1000px; 
-        border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); 
-        border: 1px solid var(--border); overflow: hidden; margin-bottom: 50px; 
-    }
-
+    /* --- HEADER DEL FORMULARIO --- */
     .form-header { padding: 24px 32px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: #fff; }
     .form-title { font-size: 18px; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 10px; }
     
-    /* GRUPO DEL FOLIO Y ESTADO */
     .ot-badge-group { display: flex; align-items: center; gap: 20px; }
+    .ot-badge { background: var(--primary); color: white; padding: 10px 20px; border-radius: 12px; text-align: right; box-shadow: 0 4px 12px rgba(31, 59, 75, 0.2); display: flex; flex-direction: column; justify-content: center; }
+    .ot-label { font-size: 11px; text-transform: uppercase; opacity: 0.8; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 2px; }
     
-    .ot-badge { 
-        background: var(--primary); 
-        color: white; 
-        padding: 10px 20px; 
-        border-radius: 12px; 
-        text-align: right; 
-        box-shadow: 0 4px 12px rgba(31, 59, 75, 0.2); 
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-    }
-    
-    .ot-label { 
-        font-size: 11px; 
-        text-transform: uppercase; 
-        opacity: 0.8; 
-        font-weight: 600; 
-        letter-spacing: 0.5px;
-        margin-bottom: 2px;
-    }
-    
-    /* --- CORRECCIÓN DEFINITIVA PARA EL INPUT DEL FOLIO --- */
-    .ot-input, .ot-input:hover, .ot-input:focus, .ot-input:active { 
-        background: transparent !important; 
-        border: none !important; 
-        color: white !important; 
-        font-weight: 800; 
-        font-size: 18px; 
-        width: 100%; 
-        text-align: right; 
-        outline: none !important; 
-        box-shadow: none !important;
-        cursor: default; 
-        padding: 0;
-    }
+    /* Override para inputs de solo lectura (Folio) */
+    .ot-input, .ot-input:hover, .ot-input:focus { background: transparent !important; border: none !important; color: white !important; font-weight: 800; font-size: 18px; width: 100%; text-align: right; outline: none !important; box-shadow: none !important; cursor: default; padding: 0; }
 
-    .status-select { 
-        padding: 8px 12px; border-radius: 6px; border: 2px solid var(--border); 
-        font-weight: 700; color: var(--primary); cursor: pointer; background: #fff;
-        font-size: 14px; outline: none;
-    }
+    .status-select { padding: 8px 12px; border-radius: 6px; border: 2px solid var(--border); font-weight: 700; color: var(--primary); cursor: pointer; background: #fff; font-size: 14px; outline: none; }
     .status-select:focus { border-color: var(--accent); }
 
+    /* --- INPUTS Y GRID --- */
     .form-body { padding: 32px; }
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }
     .full { grid-column: span 2; }
 
     label { display: block; font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px; text-transform: uppercase; }
-    
-    /* Estilos generales para inputs normales */
-    input, select, textarea { 
-        width: 100%; padding: 10px 12px; border: 1px solid var(--border); 
-        border-radius: 8px; font-size: 14px; color: var(--text-primary); 
-        background: var(--input-bg); transition: 0.2s; font-family: inherit; 
-    }
+    input, select, textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; color: var(--text-primary); background: var(--input-bg); transition: 0.2s; font-family: inherit; }
     input:focus, select:focus, textarea:focus { border-color: var(--accent); background: white; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
     
     .bg-yellow { background-color: #fffbeb; border-color: #fcd34d; }
     .bg-green { background-color: #f0fdf4; border-color: #86efac; }
 
-    /* TABLAS */
+    /* --- TABLAS DINÁMICAS --- */
     .section-header { display: flex; justify-content: space-between; align-items: center; margin: 32px 0 16px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
     .section-title { font-size: 14px; font-weight: 700; color: var(--primary); text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
+    
     .btn-add { background: var(--accent); color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.2s; }
     .btn-add:hover { background: #2563eb; transform: translateY(-1px); }
 
@@ -114,11 +68,7 @@
     .modern-table th { background: #f8fafc; padding: 12px 16px; text-align: left; font-size: 11px; color: var(--text-secondary); text-transform: uppercase; font-weight: 600; border-bottom: 1px solid var(--border); }
     .modern-table td { padding: 10px 16px; border-bottom: 1px solid var(--border); background: #fff; vertical-align: middle;}
     
-    .table-input { 
-        width: 100%; padding: 8px 10px; border: 1px solid var(--border); 
-        border-radius: 6px; background: var(--input-bg); font-size: 14px;
-        color: var(--text-primary); transition: 0.2s;
-    }
+    .table-input { width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--input-bg); font-size: 14px; color: var(--text-primary); transition: 0.2s; }
     .table-input:hover { background: #f1f5f9; }
     .table-input:focus { background: white; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
     
@@ -154,7 +104,7 @@
         <form id="ordenTrabajoForm" class="form-card">
             <div class="form-header">
                 <div class="form-title">
-                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color:var(--accent)"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color:var(--accent)"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
                     Detalle de la Orden
                 </div>
                 
@@ -242,18 +192,21 @@
 <script>
     const API_BASE = 'http://127.0.0.1:8000';
     
-    // TEMPLATES
+    // Configuración de templates HTML para inserción dinámica
     const rowTemplates = {
         tareas: (i, d={}) => `<tr><td style="text-align:center;font-weight:bold;color:#ccc">${i}</td><td><input type="text" name="tarea-detalle" class="table-input" value="${d.detalle||''}"></td><td><input type="number" name="tarea-tiempoEstimado" class="table-input" value="${d.tiempo_estimado||''}"></td><td><div style="display:flex; gap:8px"><input type="number" style="flex:1" name="tarea-tiempoReal" class="table-input" value="${d.tiempo_real||''}"><button type="button" class="btn-del" onclick="removeRow(this)">×</button></div></td></tr>`,
         repuestos: (i, d={}) => `<tr><td style="text-align:center;font-weight:bold;color:#ccc">${i}</td><td><input type="text" class="table-input" name="repuesto-codigo" value="${d.codigo||''}"></td><td><input type="text" class="table-input" name="repuesto-desc" value="${d.descripcion||''}"></td><td><div style="display:flex; gap:8px"><input type="number" style="flex:1" name="repuesto-cantidad" class="table-input" value="${d.cantidad||''}"><button type="button" class="btn-del" onclick="removeRow(this)">×</button></div></td></tr>`,
         insumos: (i, d={}) => `<tr><td style="text-align:center;font-weight:bold;color:#ccc">${i}</td><td><input type="text" class="table-input" name="insumo-codigo" value="${d.codigo||''}"></td><td><input type="text" class="table-input" name="insumo-desc" value="${d.descripcion||''}"></td><td><div style="display:flex; gap:8px"><input type="number" style="flex:1" name="insumo-cantidad" class="table-input" value="${d.cantidad||''}"><button type="button" class="btn-del" onclick="removeRow(this)">×</button></div></td></tr>`
     };
 
+    // Función genérica para inyectar filas en las tablas
     function addRow(type, data) {
         const c = document.getElementById(type+'-container');
         const add = (d) => c.insertAdjacentHTML('beforeend', rowTemplates[type](c.children.length+1, d));
         if(data && data.length) data.forEach(add); else add();
     }
+
+    // Manejo de eliminación de filas y reordenamiento de índices
     function removeRow(btn) {
         const row = btn.closest('tr');
         if(row.parentElement.children.length > 1 && confirm('¿Borrar fila?')) {
@@ -261,6 +214,8 @@
             Array.from(p.children).forEach((r, i) => r.firstElementChild.textContent = i+1);
         } else if(row.parentElement.children.length <= 1) alert("Mínimo una fila.");
     }
+
+    // Extracción de datos de tablas para envío al backend
     function getTableData(type, fields) {
         return Array.from(document.querySelectorAll(`#${type}-container tr`)).map(row => {
             let obj = {}, hasVal = false;
@@ -272,12 +227,17 @@
             return hasVal ? obj : null;
         }).filter(x => x);
     }
+
+    // Helper para obtener valores del DOM de forma segura
     function getVal(id) { return document.getElementById(id) ? document.getElementById(id).value : ''; }
 
+    // Manejo del envío del formulario (Creación / Edición)
     document.getElementById('ordenTrabajoForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const btn = document.getElementById('btnEnviar');
         btn.disabled = true; btn.textContent = 'Guardando...';
+        
+        // Construcción del Payload
         const payload = {
             numero_ot: getVal('numeroOt'), 
             estado: getVal('estado'), 
@@ -286,32 +246,33 @@
             repuestos: getTableData('repuestos', {codigo:'repuesto-codigo', descripcion:'repuesto-desc', cantidad:'repuesto-cantidad'}),
             insumos: getTableData('insumos', {codigo:'insumo-codigo', descripcion:'insumo-desc', cantidad:'insumo-cantidad'})
         };
+
         try {
             const res = await fetch(`${API_BASE}/recibir-orden/`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
             const json = await res.json();
             if(json.status === 'success') {
                 alert('✅ GUARDADO CORRECTAMENTE');
-                window.location.href = 'ot_listado.html';
+                window.location.href = 'ot_listado.html'; // Redirección automática
             } else throw new Error(json.message);
         } catch(e) { alert('Error: '+e.message); }
         finally { btn.disabled = false; btn.textContent = 'Guardar Orden'; }
     });
 
+    // Inicialización: Carga de datos si es edición, o valores por defecto
     document.addEventListener('DOMContentLoaded', async () => {
         const editId = new URLSearchParams(location.search).get('editar');
+        
         if(editId) {
+            // MODO EDICIÓN
             try {
                 const res = await fetch(`${API_BASE}/api/detalle-ot/${editId}/`);
                 if(res.ok) {
                     const data = await res.json();
                     const fields = ['numeroOt','fechaCreacion','equipoMaquina','descripcion','marca','ubicacion','modelo','tipoAccion','odometro','responsableEjecucion','fechaPlanificada','supervisor','revisadoPor','fechaRevision','recibidoPor','observaciones', 'estado'];
                     
+                    // Mapa de traducción Backend -> Frontend ID
                     const keyMap = {
-                        'numeroOt': 'numero_ot',
-                        'equipoMaquina': 'equipo_maquina',
-                        'tipoAccion': 'tipo_accion',
-                        'responsableEjecucion': 'responsable_ejecucion',
-                        'estado': 'estado'
+                        'numeroOt': 'numero_ot', 'equipoMaquina': 'equipo_maquina', 'tipoAccion': 'tipo_accion', 'responsableEjecucion': 'responsable_ejecucion', 'estado': 'estado'
                     };
 
                     fields.forEach(id => {
@@ -320,6 +281,7 @@
                         if(el) el.value = data[k] || '';
                     });
 
+                    // Carga de tablas
                     ['tareas','repuestos','insumos'].forEach(t => {
                         document.getElementById(`${t}-container`).innerHTML = '';
                         addRow(t, data[t].length ? data[t] : null);
@@ -328,6 +290,7 @@
                 }
             } catch(e) {}
         } else {
+            // MODO CREACIÓN
             document.getElementById('fechaCreacion').value = new Date().toISOString().split('T')[0];
             document.getElementById('estado').value = 'PENDIENTE';
             try {
@@ -337,6 +300,7 @@
                     document.getElementById('numeroOt').value = data.nuevo_folio;
                 } else throw new Error();
             } catch {
+                // Fallback en caso de error de red
                 const now = new Date();
                 document.getElementById('numeroOt').value = `OT-${now.getFullYear()}${(now.getMonth()+1).toString().padStart(2,'0')}${now.getDate()}-${now.getHours()}${now.getMinutes()}`;
             }

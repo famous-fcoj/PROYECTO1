@@ -17,9 +17,9 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Inter', sans-serif; background: var(--bg-main); color: var(--text-main); height: 100vh; display: flex; overflow: hidden; }
     
+    /* --- SIDEBAR --- */
     .sidebar { width: 280px; background: var(--primary); color: white; display: flex; flex-direction: column; position: fixed; top: 0; bottom: 0; left: 0; z-index: 1000; box-shadow: 4px 0 15px rgba(0,0,0,0.1); }
     .sidebar-header { padding: 28px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 20px; }
-    
     .logo-img { width: 40px; height: 40px; object-fit: contain; border-radius: 8px; background: white; padding: 2px; }
 
     .nav-links { padding: 24px 16px; flex: 1; }
@@ -27,6 +27,7 @@
     .nav-item:hover { background: rgba(255,255,255,0.05); color: white; }
     .nav-item.active { background: var(--accent); color: white; font-weight: 600; }
     
+    /* --- CONTENIDO --- */
     .main-content { margin-left: 280px; padding: 30px 40px; flex: 1; overflow-y: auto; }
     
     .header-page { margin-bottom: 30px; display: flex; justify-content: space-between; align-items: end; }
@@ -64,7 +65,11 @@
     <nav class="nav-links">
         <a href="index.html" class="nav-item"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg> Ingreso OT</a>
         <a href="ot_listado.html" class="nav-item"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg> Visualizaciones OT</a>
-        <a href="ot_graficos.html" class="nav-item active"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2-2h-2m-2-4h.01M17 16h.01"></path></svg> Reportes Gráficos</a>
+        <a href="ot_graficos.html" class="nav-item active">
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg> Reportes Gráficos
+        </a>
     </nav>
 </div>
 
@@ -88,8 +93,7 @@
             <div><div class="kpi-label">En Ejecución</div><div class="kpi-value" id="kpi-proceso">0</div></div>
         </div>
         <div class="kpi-card kpi-green">
-            <div><div class="kpi-label">Finalizadas</div><div class="kpi-value" id="kpi-finalizadas">0</div></div>
-        </div>
+            <div><div class="kpi-label">Finalizadas</div><div class="kpi-value" id="kpi-finalizadas">0</div></div>        </div>
     </div>
 
     <div class="charts-grid">
@@ -143,6 +147,7 @@
             Chart.defaults.color = '#64748b';
             Chart.defaults.scale.grid.color = '#f1f5f9';
             
+            // 1. Gráfico de Carga Laboral (Apilado)
             new Chart(document.getElementById('chartCarga'), {
                 type: 'bar',
                 data: {
@@ -156,6 +161,7 @@
                 options: { responsive: true, maintainAspectRatio: false, scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true, ticks: { stepSize: 1 } } }, plugins: { legend: { position: 'top' } } }
             });
 
+            // 2. Gráfico de Fallas (Doughnut)
             new Chart(document.getElementById('chartFallas'), {
                 type: 'doughnut',
                 data: {
@@ -165,6 +171,7 @@
                 options: { maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { usePointStyle: true, boxWidth: 8 } } }, cutout: '70%' }
             });
 
+            // 3. Gráfico de Máquinas (Barra Horizontal)
             new Chart(document.getElementById('chartMaquinas'), {
                 type: 'bar',
                 data: {
@@ -174,6 +181,7 @@
                 options: { indexAxis: 'y', maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } } }
             });
 
+            // 4. Gráfico de Estado (Pie)
             const mapEstado = { 'PENDIENTE': 'En Espera', 'EN_PROCESO': 'En Ejecución', 'FINALIZADA': 'Finalizada' };
             const colorEstado = { 'PENDIENTE': '#f59e0b', 'EN_PROCESO': '#8b5cf6', 'FINALIZADA': '#10b981' };
             
@@ -186,7 +194,7 @@
                 options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } } } }
             });
 
-        } catch(e) { console.error("Error:", e); }
+        } catch(e) { console.error("Error cargando gráficos:", e); }
     });
 </script>
 </body>
