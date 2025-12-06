@@ -9,6 +9,8 @@ from decimal import Decimal
 from django.db.models import Count, Sum, Q
 from .models import OrdenTrabajo, Tarea, Repuesto, Insumo 
 from django.db.models.functions import TruncMonth
+from django.template.loader import get_template
+from xhtml2pdf import pisa
 
 # --- HELPER ---
 def safe_cast(data, field_name, cast_type):
@@ -83,9 +85,12 @@ def recibir_orden_trabajo(request):
 
 # --- 2. LISTAR ---
 def lista_ots_api(request):
-    ordenes = OrdenTrabajo.objects.all().order_by('-created_at')
+    # Traemos todas las órdenes sin importar el orden de creación
+    ordenes = OrdenTrabajo.objects.all()
+    # Construimos la lista de datos
     data = []
     for o in ordenes:
+        # Agregamos cada OT al listado
         data.append({
             'ot': o.ot,
             'fecha': o.fecha_inicio.strftime('%Y-%m-%d') if o.fecha_inicio else '-',
@@ -93,8 +98,15 @@ def lista_ots_api(request):
             'encargado': o.encargado,
             'estado': o.estado
         })
-    return JsonResponse({'ordenes': data})
 
+    # Ordenamos las OTs por número, asumiendo formato "OT-0001", "OT-0002", etc.
+    try:
+        data.sort(key=lambda x: int(x['ot'].split('-')[1]))
+    except:
+        # En caso de error, ordenamos alfabéticamente
+        data.sort(key=lambda x: x['ot'])
+
+    return JsonResponse({'ordenes': data})
 # --- 3. DETALLE ---
 def detalle_ot_api(request, ot_num):
     ot = get_object_or_404(OrdenTrabajo, ot=ot_num)
@@ -151,14 +163,13 @@ def ot_resumen_api(request):
     if rest_count > 0:
         top_types.append({'tipo_falla': 'Otros', 'total': rest_count})
 
-    # 3. CARGA LABORAL POR ENCARGADO (Gráfico Barras Apiladas)
-    # Esta es la lógica nueva que reemplaza a la "Evolución Mensual"
+    # 3. CARGA LABORAL POR ENCARGADO
     carga = OrdenTrabajo.objects.values('encargado').annotate(
         total=Count('id'),
         pendientes=Count('id', filter=Q(estado='PENDIENTE')),
         proceso=Count('id', filter=Q(estado='EN_PROCESO')),
         finalizadas=Count('id', filter=Q(estado='FINALIZADA'))
-    ).order_by('-total')[:7] # Top 7 encargados
+    ).order_by('-total')[:7]
 
     # 4. Top Máquinas
     maquina = OrdenTrabajo.objects.values('maquina').annotate(total=Count('id')).order_by('-total')[:5]
@@ -166,12 +177,11 @@ def ot_resumen_api(request):
     # 5. Estado General
     estado = OrdenTrabajo.objects.values('estado').annotate(total=Count('id'))
 
-    # UN SOLO RETURN AL FINAL
     return JsonResponse({
         'resumen_estado': list(estado),
         'resumen_maquina': list(maquina),
         'resumen_tipo': top_types,
-        'carga_laboral': list(carga), # Enviamos los datos para el gráfico de barras apiladas
+        'carga_laboral': list(carga),
         'kpis': {
             'total': total_ots,
             'pendientes': pendientes,
@@ -180,7 +190,7 @@ def ot_resumen_api(request):
         }
     })
 
-# --- 6. EXCEL PROFESIONAL (DISEÑO MEJORADO) ---
+# --- 6. EXCEL PROFESIONAL ---
 def exportar_ot_excel(request, ot_num):
     ot = get_object_or_404(OrdenTrabajo, ot=ot_num)
     
@@ -385,7 +395,6 @@ def exportar_ot_excel(request, ot_num):
     ws.cell(row=current_row, column=4).alignment = center
 
     # --- NOMBRE DEL ARCHIVO CORREGIDO ---
-    # Reemplaza '-' por '_' para obtener OT_1.xlsx
     clean_filename = ot.ot.replace('-', '_')
     filename = f"{clean_filename}.xlsx"
 
@@ -402,4 +411,23 @@ def siguiente_folio_api(request):
         if not OrdenTrabajo.objects.filter(ot=folio_candidato).exists():
             break
         numero += 1
-    return JsonResponse({'nuevo_folio': folio_candidato})   
+    return JsonResponse({'nuevo_folio': folio_candidato})
+
+# --- 8. GENERACION DE PDF ---
+def exportar_ot_pdf(request, ot_num):
+    ot = get_object_or_404(OrdenTrabajo, ot=ot_num)
+    # Nombre de el html que contiene el template del PDF
+    template_path = 'ot_pdf.html' 
+    context = {'ot': ot}
+    
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{ot.ot}.pdf"'
+    
+    template = get_template(template_path)
+    html = template.render(context)
+    
+    pisa_status = pisa.CreatePDF(html, dest=response)
+    
+    if pisa_status.err:
+        return HttpResponse('Error al generar PDF', status=500)
+    return response

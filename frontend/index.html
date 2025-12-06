@@ -20,8 +20,9 @@
     /* SIDEBAR */
     .sidebar { width: 280px; background: var(--primary); color: white; display: flex; flex-direction: column; flex-shrink: 0; z-index: 100; box-shadow: 4px 0 10px rgba(0,0,0,0.3); position: fixed; top:0; bottom:0; left:0; }
     .sidebar-header { padding: 28px 24px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); }
-    .logo-icon { width: 40px; height: 40px; background: var(--accent); border-radius: 8px; display: grid; place-items: center; font-weight: 800; font-size: 20px; }
-    .sidebar-brand { font-weight: 700; font-size: 20px; letter-spacing: -0.5px; }
+    
+    .logo-img { width: 40px; height: 40px; object-fit: contain; border-radius: 8px; background: white; padding: 2px; }
+
     .nav-links { padding: 24px 12px; flex: 1; }
     .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: #94a3b8; text-decoration: none; border-radius: 8px; margin-bottom: 4px; font-size: 14px; font-weight: 500; transition: 0.2s; }
     .nav-item:hover { background: rgba(255,255,255,0.08); color: white; }
@@ -43,11 +44,42 @@
     /* GRUPO DEL FOLIO Y ESTADO */
     .ot-badge-group { display: flex; align-items: center; gap: 20px; }
     
-    .ot-badge { background: var(--primary); color: white; padding: 8px 16px; border-radius: 8px; text-align: right; }
-    .ot-label { font-size: 10px; text-transform: uppercase; opacity: 0.7; font-weight: 600; }
-    .ot-input { background: transparent; border: none; color: white; font-weight: 700; font-size: 16px; width: 140px; text-align: right; }
+    .ot-badge { 
+        background: var(--primary); 
+        color: white; 
+        padding: 10px 20px; 
+        border-radius: 12px; 
+        text-align: right; 
+        box-shadow: 0 4px 12px rgba(31, 59, 75, 0.2); 
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    
+    .ot-label { 
+        font-size: 11px; 
+        text-transform: uppercase; 
+        opacity: 0.8; 
+        font-weight: 600; 
+        letter-spacing: 0.5px;
+        margin-bottom: 2px;
+    }
+    
+    /* --- CORRECCIÓN DEFINITIVA PARA EL INPUT DEL FOLIO --- */
+    .ot-input, .ot-input:hover, .ot-input:focus, .ot-input:active { 
+        background: transparent !important; 
+        border: none !important; 
+        color: white !important; 
+        font-weight: 800; 
+        font-size: 18px; 
+        width: 100%; 
+        text-align: right; 
+        outline: none !important; 
+        box-shadow: none !important;
+        cursor: default; 
+        padding: 0;
+    }
 
-    /* ESTILO DEL SELECTOR DE ESTADO */
     .status-select { 
         padding: 8px 12px; border-radius: 6px; border: 2px solid var(--border); 
         font-weight: 700; color: var(--primary); cursor: pointer; background: #fff;
@@ -60,6 +92,8 @@
     .full { grid-column: span 2; }
 
     label { display: block; font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px; text-transform: uppercase; }
+    
+    /* Estilos generales para inputs normales */
     input, select, textarea { 
         width: 100%; padding: 10px 12px; border: 1px solid var(--border); 
         border-radius: 8px; font-size: 14px; color: var(--text-primary); 
@@ -67,7 +101,6 @@
     }
     input:focus, select:focus, textarea:focus { border-color: var(--accent); background: white; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
     
-    /* Colores inputs especiales */
     .bg-yellow { background-color: #fffbeb; border-color: #fcd34d; }
     .bg-green { background-color: #f0fdf4; border-color: #86efac; }
 
@@ -81,16 +114,10 @@
     .modern-table th { background: #f8fafc; padding: 12px 16px; text-align: left; font-size: 11px; color: var(--text-secondary); text-transform: uppercase; font-weight: 600; border-bottom: 1px solid var(--border); }
     .modern-table td { padding: 10px 16px; border-bottom: 1px solid var(--border); background: #fff; vertical-align: middle;}
     
-    /* INPUTS DE TABLA UNIFICADOS */
     .table-input { 
-        width: 100%; 
-        padding: 8px 10px; 
-        border: 1px solid var(--border); 
-        border-radius: 6px; 
-        background: var(--input-bg); 
-        font-size: 14px;
-        color: var(--text-primary);
-        transition: 0.2s;
+        width: 100%; padding: 8px 10px; border: 1px solid var(--border); 
+        border-radius: 6px; background: var(--input-bg); font-size: 14px;
+        color: var(--text-primary); transition: 0.2s;
     }
     .table-input:hover { background: #f1f5f9; }
     .table-input:focus { background: white; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
@@ -105,109 +132,112 @@
 </head>
 <body>
 
-<div class="sidebar">
-    <div class="sidebar-header"><div class="logo-icon">C</div> <span class="sidebar-brand">CONMETAL</span></div>
-    <nav class="nav-links">
-        <a href="index.html" class="nav-item active">
-            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg> Ingreso OT
-        </a>
-        <a href="ot_listado.html" class="nav-item">
-            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg> Visualizaciones OT
-        </a>
-        <a href="ot_graficos.html" class="nav-item">
-            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg> Reportes Gráficos
-        </a>
-    </nav>
-</div>
-
-<div class="content-area">
-    <form id="ordenTrabajoForm" class="form-card">
-        <div class="form-header">
-            <div class="form-title">
-                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color:var(--accent)"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-                Detalle de la Orden
-            </div>
-            
-            <div class="ot-badge-group">
-                <select id="estado" class="status-select">
-                    <option value="PENDIENTE">En Espera</option>
-                    <option value="EN_PROCESO">En Ejecución</option>
-                    <option value="FINALIZADA">Finalizada</option>
-                </select>
-
-                <div class="ot-badge">
-                    <div class="ot-label">NUMERO DE ORDEN DE TRABAJO</div>
-                    <input type="text" id="numeroOt" name="numeroOt" class="ot-input" readonly placeholder="...">
-                </div>
-            </div>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <img src="logo.png" class="logo-img" alt="Logo">
+            <span>CONMETAL</span>
         </div>
+        <nav class="nav-links">
+            <a href="index.html" class="nav-item active">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg> Ingreso OT
+            </a>
+            <a href="ot_listado.html" class="nav-item">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg> Visualizaciones OT
+            </a>
+            <a href="ot_graficos.html" class="nav-item">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg> Reportes Gráficos
+            </a>
+        </nav>
+    </div>
 
-        <div class="form-body">
-            <div class="grid-2">
-                <div><label>Fecha Creación</label><input type="date" id="fechaCreacion" required></div>
-                <div><label>Equipo / Máquina</label><input type="text" id="equipoMaquina" class="bg-yellow" required></div>
-                <div class="full"><label>Descripción</label><input type="text" id="descripcion"></div>
-                <div><label>Marca</label><input type="text" id="marca" class="bg-yellow"></div>
-                <div><label>Modelo</label><input type="text" id="modelo" class="bg-yellow"></div>
-                <div><label>Ubicación</label><input type="text" id="ubicacion"></div>
-                <div><label>Tipo Acción</label><input type="text" id="tipoAccion"></div>
-                <div><label>Odómetro</label><input type="number" id="odometro"></div>
-                <div><label>Responsable</label><input type="text" id="responsableEjecucion" class="bg-green" required></div>
-                <div class="full"><label>Supervisor</label>
-                    <select id="supervisor">
-                        <option value="" disabled selected>Seleccione Especialidad...</option>
-                        <option value="Mecánico">Mecánico</option>
-                        <option value="Eléctrico">Eléctrico</option>
-                        <option value="Electrónica/Automatización">Electrónica/Automatización</option>
+    <div class="content-area">
+        <form id="ordenTrabajoForm" class="form-card">
+            <div class="form-header">
+                <div class="form-title">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color:var(--accent)"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                    Detalle de la Orden
+                </div>
+                
+                <div class="ot-badge-group">
+                    <select id="estado" class="status-select">
+                        <option value="PENDIENTE">En Espera</option>
+                        <option value="EN_PROCESO">En Ejecución</option>
+                        <option value="FINALIZADA">Finalizada</option>
                     </select>
+
+                    <div class="ot-badge">
+                        <div class="ot-label">NUMERO DE ORDEN DE TRABAJO</div>
+                        <input type="text" id="numeroOt" name="numeroOt" class="ot-input" readonly placeholder="...">
+                    </div>
                 </div>
-                <div><label>Fecha Planificada</label><input type="date" id="fechaPlanificada"></div>
             </div>
 
-            <div class="section-header">
-                <span class="section-title">Tareas a Ejecutar</span>
-                <button type="button" class="btn-add" onclick="addRow('tareas')">+ Agregar</button>
-            </div>
-            <table class="modern-table">
-                <thead><tr><th width="40" style="text-align:center">#</th><th>Detalle</th><th width="140">Tiempo Est. (Hrs)</th><th width="140">Tiempo Real (Hrs)</th><th width="40"></th></tr></thead>
-                <tbody id="tareas-container"></tbody>
-            </table>
+            <div class="form-body">
+                <div class="grid-2">
+                    <div><label>Fecha Creación</label><input type="date" id="fechaCreacion" required></div>
+                    <div><label>Equipo / Máquina</label><input type="text" id="equipoMaquina" class="bg-yellow" required></div>
+                    <div class="full"><label>Descripción</label><input type="text" id="descripcion"></div>
+                    <div><label>Marca</label><input type="text" id="marca" class="bg-yellow"></div>
+                    <div><label>Modelo</label><input type="text" id="modelo" class="bg-yellow"></div>
+                    <div><label>Ubicación</label><input type="text" id="ubicacion"></div>
+                    <div><label>Tipo Acción</label><input type="text" id="tipoAccion"></div>
+                    <div><label>Odómetro</label><input type="number" id="odometro"></div>
+                    <div><label>Responsable</label><input type="text" id="responsableEjecucion" class="bg-green" required></div>
+                    <div class="full"><label>Supervisor</label>
+                        <select id="supervisor">
+                            <option value="" disabled selected>Seleccione Especialidad...</option>
+                            <option value="Mecánico">Mecánico</option>
+                            <option value="Eléctrico">Eléctrico</option>
+                            <option value="Electrónica/Automatización">Electrónica/Automatización</option>
+                        </select>
+                    </div>
+                    <div><label>Fecha Planificada</label><input type="date" id="fechaPlanificada"></div>
+                </div>
 
-            <div class="section-header">
-                <span class="section-title">Repuestos Requeridos</span>
-                <button type="button" class="btn-add" onclick="addRow('repuestos')">+ Agregar</button>
-            </div>
-            <table class="modern-table">
-                <thead><tr><th width="40" style="text-align:center">#</th><th width="150">Código</th><th>Descripción</th><th width="130">Cant.</th><th width="40"></th></tr></thead>
-                <tbody id="repuestos-container"></tbody>
-            </table>
+                <div class="section-header">
+                    <span class="section-title">Tareas a Ejecutar</span>
+                    <button type="button" class="btn-add" onclick="addRow('tareas')">+ Agregar</button>
+                </div>
+                <table class="modern-table">
+                    <thead><tr><th width="40" style="text-align:center">#</th><th>Detalle</th><th width="140">Tiempo Est. (Hrs)</th><th width="140">Tiempo Real (Hrs)</th><th width="40"></th></tr></thead>
+                    <tbody id="tareas-container"></tbody>
+                </table>
 
-            <div class="section-header">
-                <span class="section-title">Insumos Requeridos</span>
-                <button type="button" class="btn-add" onclick="addRow('insumos')">+ Agregar</button>
-            </div>
-            <table class="modern-table">
-                <thead><tr><th width="40" style="text-align:center">#</th><th width="150">Código</th><th>Descripción</th><th width="130">Cant.</th><th width="40"></th></tr></thead>
-                <tbody id="insumos-container"></tbody>
-            </table>
+                <div class="section-header">
+                    <span class="section-title">Repuestos Requeridos</span>
+                    <button type="button" class="btn-add" onclick="addRow('repuestos')">+ Agregar</button>
+                </div>
+                <table class="modern-table">
+                    <thead><tr><th width="40" style="text-align:center">#</th><th width="150">Código</th><th>Descripción</th><th width="130">Cant.</th><th width="40"></th></tr></thead>
+                    <tbody id="repuestos-container"></tbody>
+                </table>
 
-            <div class="section-header" style="margin-top:40px"><span class="section-title">Cierre de Orden</span></div>
-            <div class="grid-2">
-                <div><label>Revisado Por</label><input type="text" id="revisadoPor"></div>
-                <div><label>Fecha Revisión</label><input type="date" id="fechaRevision"></div>
-                <div class="full"><label>Recibido Por</label><input type="text" id="recibidoPor"></div>
-                <div class="full"><label>Observaciones</label><textarea id="observaciones"></textarea></div>
-            </div>
-        </div>
+                <div class="section-header">
+                    <span class="section-title">Insumos Requeridos</span>
+                    <button type="button" class="btn-add" onclick="addRow('insumos')">+ Agregar</button>
+                </div>
+                <table class="modern-table">
+                    <thead><tr><th width="40" style="text-align:center">#</th><th width="150">Código</th><th>Descripción</th><th width="130">Cant.</th><th width="40"></th></tr></thead>
+                    <tbody id="insumos-container"></tbody>
+                </table>
 
-        <div class="form-footer">
-            <button type="submit" class="btn-save" id="btnEnviar">
-                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
-                Guardar Orden
-            </button>
-        </div>
-    </form>
-</div>
+                <div class="section-header" style="margin-top:40px"><span class="section-title">Cierre de Orden</span></div>
+                <div class="grid-2">
+                    <div><label>Revisado Por</label><input type="text" id="revisadoPor"></div>
+                    <div><label>Fecha Revisión</label><input type="date" id="fechaRevision"></div>
+                    <div class="full"><label>Recibido Por</label><input type="text" id="recibidoPor"></div>
+                    <div class="full"><label>Observaciones</label><textarea id="observaciones"></textarea></div>
+                </div>
+            </div>
+
+            <div class="form-footer">
+                <button type="submit" class="btn-save" id="btnEnviar">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
+                    Guardar Orden
+                </button>
+            </div>
+        </form>
+    </div>
 
 <script>
     const API_BASE = 'http://127.0.0.1:8000';
@@ -260,8 +290,7 @@
             const res = await fetch(`${API_BASE}/recibir-orden/`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
             const json = await res.json();
             if(json.status === 'success') {
-                alert('Orden de trabajo actualizada correctamente.');
-                // REDIRECCIÓN AUTOMÁTICA AL LISTADO
+                alert('✅ GUARDADO CORRECTAMENTE');
                 window.location.href = 'ot_listado.html';
             } else throw new Error(json.message);
         } catch(e) { alert('Error: '+e.message); }
@@ -295,7 +324,7 @@
                         document.getElementById(`${t}-container`).innerHTML = '';
                         addRow(t, data[t].length ? data[t] : null);
                     });
-                    document.getElementById('btnEnviar').textContent = 'Actualizar Orden de Trabajo';
+                    document.getElementById('btnEnviar').innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg> Actualizar Orden';
                 }
             } catch(e) {}
         } else {

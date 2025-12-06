@@ -9,4 +9,5 @@ urlpatterns = [
     path('api/ot-resumen/', views.ot_resumen_api, name='ot_resumen_api'),
     path('api/exportar-excel/<str:ot_num>/', views.exportar_ot_excel, name='exportar_excel'),
     path('api/siguiente-folio/', views.siguiente_folio_api, name='siguiente_folio'),
+    path('api/exportar-pdf/<str:ot_num>/', views.exportar_ot_pdf, name='exportar_pdf'),
 ]

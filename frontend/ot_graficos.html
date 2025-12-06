@@ -11,7 +11,6 @@
         --primary: #1f3b4b; --secondary: #334155; --accent: #3b82f6; 
         --bg-main: #f8fafc; --bg-card: #ffffff; --border: #e2e8f0; 
         --text-main: #1e293b; --text-muted: #64748b;
-        /* Colores Gráficos */
         --chart-blue: #3b82f6; --chart-green: #10b981; --chart-red: #ef4444; --chart-orange: #f59e0b; --chart-purple: #8b5cf6;
     }
     
@@ -20,7 +19,9 @@
     
     .sidebar { width: 280px; background: var(--primary); color: white; display: flex; flex-direction: column; position: fixed; top: 0; bottom: 0; left: 0; z-index: 1000; box-shadow: 4px 0 15px rgba(0,0,0,0.1); }
     .sidebar-header { padding: 28px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 20px; }
-    .logo-icon { width: 40px; height: 40px; background: var(--accent); border-radius: 10px; display: grid; place-items: center; }
+    
+    .logo-img { width: 40px; height: 40px; object-fit: contain; border-radius: 8px; background: white; padding: 2px; }
+
     .nav-links { padding: 24px 16px; flex: 1; }
     .nav-item { display: flex; gap: 12px; padding: 12px 16px; color: #94a3b8; text-decoration: none; border-radius: 8px; margin-bottom: 4px; transition: 0.2s; font-size: 14px; font-weight: 500; align-items: center; }
     .nav-item:hover { background: rgba(255,255,255,0.05); color: white; }
@@ -56,7 +57,10 @@
 <body>
 
 <div class="sidebar">
-    <div class="sidebar-header"><div class="logo-icon">C</div> <span>CONMETAL</span></div>
+    <div class="sidebar-header">
+        <img src="logo.png" class="logo-img" alt="Logo">
+        <span>CONMETAL</span>
+    </div>
     <nav class="nav-links">
         <a href="index.html" class="nav-item"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg> Ingreso OT</a>
         <a href="ot_listado.html" class="nav-item"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg> Visualizaciones OT</a>
@@ -76,19 +80,15 @@
     <div class="kpi-grid">
         <div class="kpi-card kpi-blue">
             <div><div class="kpi-label">Total Órdenes</div><div class="kpi-value" id="kpi-total">0</div></div>
-            <div class="kpi-icon">📋</div>
         </div>
         <div class="kpi-card kpi-orange">
             <div><div class="kpi-label">Pendientes</div><div class="kpi-value" id="kpi-pendientes">0</div></div>
-            <div class="kpi-icon">⏳</div>
         </div>
         <div class="kpi-card kpi-purple">
             <div><div class="kpi-label">En Ejecución</div><div class="kpi-value" id="kpi-proceso">0</div></div>
-            <div class="kpi-icon">⚙️</div>
         </div>
         <div class="kpi-card kpi-green">
             <div><div class="kpi-label">Finalizadas</div><div class="kpi-value" id="kpi-finalizadas">0</div></div>
-            <div class="kpi-icon">✅</div>
         </div>
     </div>
 
@@ -143,84 +143,37 @@
             Chart.defaults.color = '#64748b';
             Chart.defaults.scale.grid.color = '#f1f5f9';
             
-            // --- GRÁFICO 1: CARGA LABORAL (Barras Apiladas) ---
             new Chart(document.getElementById('chartCarga'), {
                 type: 'bar',
                 data: {
                     labels: data.carga_laboral.map(x => x.encargado),
                     datasets: [
-                        {
-                            label: 'Finalizadas',
-                            data: data.carga_laboral.map(x => x.finalizadas),
-                            backgroundColor: '#10b981', // Verde
-                            borderRadius: 4
-                        },
-                        {
-                            label: 'En Ejecución',
-                            data: data.carga_laboral.map(x => x.proceso),
-                            backgroundColor: '#8b5cf6', // Morado
-                            borderRadius: 4
-                        },
-                        {
-                            label: 'Pendientes',
-                            data: data.carga_laboral.map(x => x.pendientes),
-                            backgroundColor: '#f59e0b', // Naranja
-                            borderRadius: 4
-                        }
+                        { label: 'Finalizadas', data: data.carga_laboral.map(x => x.finalizadas), backgroundColor: '#10b981', borderRadius: 4 },
+                        { label: 'En Ejecución', data: data.carga_laboral.map(x => x.proceso), backgroundColor: '#8b5cf6', borderRadius: 4 },
+                        { label: 'Pendientes', data: data.carga_laboral.map(x => x.pendientes), backgroundColor: '#f59e0b', borderRadius: 4 }
                     ]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: { stacked: true },
-                        y: { stacked: true, beginAtZero: true, ticks: { stepSize: 1 } }
-                    },
-                    plugins: { legend: { position: 'top' } }
-                }
+                options: { responsive: true, maintainAspectRatio: false, scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true, ticks: { stepSize: 1 } } }, plugins: { legend: { position: 'top' } } }
             });
 
-            // --- GRÁFICO 2: FALLAS ---
             new Chart(document.getElementById('chartFallas'), {
                 type: 'doughnut',
                 data: {
                     labels: data.resumen_tipo.length ? data.resumen_tipo.map(x => x.tipo_falla || 'N/A') : ['Sin datos'],
-                    datasets: [{
-                        data: data.resumen_tipo.length ? data.resumen_tipo.map(x => x.total) : [1],
-                        backgroundColor: ['#6366f1', '#ec4899', '#f59e0b', '#10b981', '#ef4444', '#cbd5e1'],
-                        borderWidth: 0,
-                        hoverOffset: 4
-                    }]
+                    datasets: [{ data: data.resumen_tipo.length ? data.resumen_tipo.map(x => x.total) : [1], backgroundColor: ['#6366f1', '#ec4899', '#f59e0b', '#10b981', '#ef4444', '#cbd5e1'], borderWidth: 0, hoverOffset: 4 }]
                 },
-                options: {
-                    maintainAspectRatio: false,
-                    plugins: { legend: { position: 'right', labels: { usePointStyle: true, boxWidth: 8 } } },
-                    cutout: '70%'
-                }
+                options: { maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { usePointStyle: true, boxWidth: 8 } } }, cutout: '70%' }
             });
 
-            // --- GRÁFICO 3: MAQUINAS ---
             new Chart(document.getElementById('chartMaquinas'), {
                 type: 'bar',
                 data: {
                     labels: data.resumen_maquina.map(x => x.maquina),
-                    datasets: [{
-                        label: 'Intervenciones',
-                        data: data.resumen_maquina.map(x => x.total),
-                        backgroundColor: '#1f3b4b',
-                        borderRadius: 4,
-                        barThickness: 25
-                    }]
+                    datasets: [{ label: 'Intervenciones', data: data.resumen_maquina.map(x => x.total), backgroundColor: '#1f3b4b', borderRadius: 4, barThickness: 25 }]
                 },
-                options: {
-                    indexAxis: 'y',
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } }
-                }
+                options: { indexAxis: 'y', maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } } }
             });
 
-            // --- GRÁFICO 4: ESTADO ---
             const mapEstado = { 'PENDIENTE': 'En Espera', 'EN_PROCESO': 'En Ejecución', 'FINALIZADA': 'Finalizada' };
             const colorEstado = { 'PENDIENTE': '#f59e0b', 'EN_PROCESO': '#8b5cf6', 'FINALIZADA': '#10b981' };
             
@@ -228,17 +181,9 @@
                 type: 'pie',
                 data: {
                     labels: data.resumen_estado.map(x => mapEstado[x.estado] || x.estado),
-                    datasets: [{
-                        data: data.resumen_estado.map(x => x.total),
-                        backgroundColor: data.resumen_estado.map(x => colorEstado[x.estado] || '#ccc'),
-                        borderWidth: 2,
-                        borderColor: '#ffffff'
-                    }]
+                    datasets: [{ data: data.resumen_estado.map(x => x.total), backgroundColor: data.resumen_estado.map(x => colorEstado[x.estado] || '#ccc'), borderWidth: 2, borderColor: '#ffffff' }]
                 },
-                options: {
-                    maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } } }
-                }
+                options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } } } }
             });
 
         } catch(e) { console.error("Error:", e); }

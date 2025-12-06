@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+    @page {
+        size: A4;
+        margin: 1.5cm;
+    }
+    body {
+        font-family: Helvetica, Arial, sans-serif;
+        font-size: 10pt;
+        color: #333;
+    }
+    .header {
+        width: 100%;
+        border-bottom: 2px solid #1f3b4b;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+    }
+    .title {
+        font-size: 22pt;
+        font-weight: bold;
+        color: #1f3b4b;
+        text-align: center;
+        text-transform: uppercase;
+    }
+    .subtitle {
+        font-size: 10pt;
+        color: #666;
+        text-align: center;
+    }
+    
+    /* Cajas de Datos */
+    .info-box {
+        width: 100%;
+        margin-bottom: 15px;
+        border-collapse: collapse;
+    }
+    .info-box td {
+        padding: 5px;
+        border: 1px solid #ccc;
+        vertical-align: top;
+    }
+    .label {
+        font-weight: bold;
+        background-color: #f0f0f0;
+        width: 120px;
+        font-size: 9pt;
+        color: #1f3b4b;
+    }
+    .value {
+        font-size: 10pt;
+    }
+
+    /* Tablas de Items */
+    .section-title {
+        background-color: #1f3b4b;
+        color: white;
+        padding: 5px;
+        font-weight: bold;
+        margin-top: 20px;
+        margin-bottom: 5px;
+        font-size: 11pt;
+    }
+    .items-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 10px;
+    }
+    .items-table th {
+        background-color: #e2e8f0;
+        font-weight: bold;
+        font-size: 9pt;
+        border: 1px solid #999;
+        padding: 4px;
+        text-align: center;
+    }
+    .items-table td {
+        border: 1px solid #999;
+        padding: 4px;
+        font-size: 9pt;
+    }
+    .center { text-align: center; }
+
+    /* Firmas */
+    .signatures {
+        margin-top: 50px;
+        width: 100%;
+    }
+    .sig-box {
+        width: 45%;
+        text-align: center;
+        display: inline-block;
+    }
+    .line {
+        border-top: 1px solid #000;
+        margin-bottom: 5px;
+        width: 80%;
+        margin-left: 10%;
+    }
+</style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="title">ORDEN DE TRABAJO</div>
+        <div class="subtitle">Folio: {{ ot.ot }} | Fecha: {{ ot.fecha_inicio|date:"d/m/Y" }}</div>
+    </div>
+
+    <table class="info-box">
+        <tr>
+            <td class="label">Encargado:</td>
+            <td class="value">{{ ot.encargado }}</td>
+            <td class="label">Estado:</td>
+            <td class="value">{{ ot.get_estado_display }}</td>
+        </tr>
+        <tr>
+            <td class="label">Máquina:</td>
+            <td class="value">{{ ot.maquina }}</td>
+            <td class="label">Ubicación:</td>
+            <td class="value">{{ ot.ubicacion }}</td>
+        </tr>
+        <tr>
+            <td class="label">Descripción:</td>
+            <td colspan="3" class="value">{{ ot.descripcion }}</td>
+        </tr>
+        <tr>
+            <td class="label">Marca/Modelo:</td>
+            <td class="value">{{ ot.marca }} / {{ ot.modelo }}</td>
+            <td class="label">Tipo Acción:</td>
+            <td class="value">{{ ot.tipo_accion }}</td>
+        </tr>
+    </table>
+
+    <div class="section-title">1. TAREAS A EJECUTAR</div>
+    <table class="items-table">
+        <thead>
+            <tr>
+                <th width="10%">#</th>
+                <th width="50%">Detalle</th>
+                <th width="15%">T. Est (Hrs)</th>
+                <th width="15%">T. Real (Hrs)</th>
+                <th width="10%">OK</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for t in ot.tareas.all %}
+            <tr>
+                <td class="center">{{ forloop.counter }}</td>
+                <td>{{ t.detalle }}</td>
+                <td class="center">{{ t.tiempo_estimado }}</td>
+                <td class="center">{{ t.tiempo_real }}</td>
+                <td class="center">[ ]</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5" class="center">No hay tareas registradas</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="section-title">2. REPUESTOS E INSUMOS</div>
+    <table class="items-table">
+        <thead>
+            <tr>
+                <th width="10%">#</th>
+                <th width="20%">Código</th>
+                <th width="50%">Descripción</th>
+                <th width="20%">Cantidad</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for r in ot.repuestos.all %}
+            <tr>
+                <td class="center">{{ forloop.counter }}</td>
+                <td class="center">{{ r.codigo }}</td>
+                <td>{{ r.descripcion }} (Repuesto)</td>
+                <td class="center">{{ r.cantidad }}</td>
+            </tr>
+            {% endfor %}
+            {% for i in ot.insumos.all %}
+            <tr>
+                <td class="center">*</td>
+                <td class="center">{{ i.codigo }}</td>
+                <td>{{ i.descripcion }} (Insumo)</td>
+                <td class="center">{{ i.cantidad }}</td>
+            </tr>
+            {% endfor %}
+            {% if not ot.repuestos.all and not ot.insumos.all %}
+            <tr><td colspan="4" class="center">No se requieren materiales</td></tr>
+            {% endif %}
+        </tbody>
+    </table>
+
+    <div class="section-title">OBSERVACIONES Y CIERRE</div>
+    <div style="border: 1px solid #ccc; padding: 10px; min-height: 60px; font-size: 9pt;">
+        {{ ot.observacion|default:"(Sin observaciones)" }}
+    </div>
+
+    <table class="signatures">
+        <tr>
+            <td width="50%" class="center">
+                <div style="height: 40px;"></div>
+                <div class="line"></div>
+                <b>Revisado Por</b><br>
+                {{ ot.revisado_por|default:"Pendiente" }}
+            </td>
+            <td width="50%" class="center">
+                <div style="height: 40px;"></div>
+                <div class="line"></div>
+                <b>Recibido Por</b><br>
+                {{ ot.recibido_por|default:"Pendiente" }}
+            </td>
+        </tr>
+    </table>
+
+</body>
+</html>

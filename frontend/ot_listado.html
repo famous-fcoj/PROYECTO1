@@ -5,14 +5,15 @@
 <title>Visualizaciones OT - CONMETAL</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-    /* MISMO ESTILO BASE */
     :root { --primary: #1f3b4b; --secondary: #2b6f9a; --accent: #3b82f6; --bg-main: #f1f5f9; --bg-card: #ffffff; --border: #e2e8f0; --text-main: #334155; --text-light: #64748b; }
     * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
     body { font-family: 'Inter', sans-serif; background: var(--bg-main); color: var(--text-main); height: 100vh; display: flex; overflow: hidden; }
     
     .sidebar { width: 280px; background: var(--primary); color: white; display: flex; flex-direction: column; position: fixed; top: 0; bottom: 0; left: 0; z-index: 1000; box-shadow: 4px 0 15px rgba(0,0,0,0.1); }
     .sidebar-header { padding: 28px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 20px; }
-    .logo-icon { width: 40px; height: 40px; background: var(--accent); border-radius: 10px; display: grid; place-items: center; }
+    
+    .logo-img { width: 40px; height: 40px; object-fit: contain; border-radius: 8px; background: white; padding: 2px; }
+
     .nav-links { padding: 24px 16px; flex: 1; }
     .nav-item { display: flex; gap: 12px; padding: 12px 16px; color: #94a3b8; text-decoration: none; border-radius: 8px; margin-bottom: 4px; transition: 0.2s; font-size: 14px; font-weight: 500; align-items: center; }
     .nav-item:hover { background: rgba(255,255,255,0.05); color: white; }
@@ -22,11 +23,9 @@
     
     .card { background: white; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border: 1px solid var(--border); overflow: hidden; max-width: 1200px; margin: 0 auto; }
     
-    /* HEADER CON BUSCADOR */
     .card-header { padding: 20px 32px; border-bottom: 1px solid var(--border); background: #fff; display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
     .card-title { font-size: 18px; font-weight: 700; color: var(--primary); white-space: nowrap; }
     
-    /* ESTILOS DEL BUSCADOR */
     .search-container { position: relative; flex: 1; max-width: 350px; }
     .search-input { width: 100%; padding: 10px 12px 10px 40px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; color: var(--text-main); background: #f8fafc; transition: 0.2s; }
     .search-input:focus { border-color: var(--accent); background: #fff; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
@@ -40,22 +39,25 @@
     td { padding: 16px 24px; border-bottom: 1px solid var(--border); vertical-align: middle; }
     tr:hover { background: #f8fafc; }
 
-    /* --- BADGES (ETIQUETAS DE ESTADO) --- */
     .badge { padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; display: inline-block; letter-spacing: 0.5px; }
     
-    .badge-PENDIENTE { background: #fffbeb; color: #b45309; border: 1px solid #fcd34d; }  /* Amarillo */
-    .badge-EN_PROCESO { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; } /* Azul */
-    .badge-FINALIZADA { background: #dcfce7; color: #166534; border: 1px solid #86efac; } /* Verde */
+    .badge-PENDIENTE { background: #fffbeb; color: #b45309; border: 1px solid #fcd34d; }
+    .badge-EN_PROCESO { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; }
+    .badge-FINALIZADA { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
 
     .btn-icon { padding: 6px 10px; border-radius: 6px; border: none; cursor: pointer; margin-right: 5px; font-weight: bold; text-decoration: none; display: inline-flex; align-items: center; font-size: 12px; transition: 0.2s; }
     .btn-excel { background: #dcfce7; color: #065f46; } .btn-excel:hover { background: #16a34a; color: white; }
     .btn-edit { background: #dbeafe; color: #1e40af; } .btn-edit:hover { background: #2563eb; color: white; }
     .btn-del { background: #fee2e2; color: #991b1b; } .btn-del:hover { background: #ef4444; color: white; }
+    .btn-pdf { background: #fee2e2; color: #b91c1c; } .btn-pdf:hover { background: #ef4444; color: white; }
 </style>
 </head>
 <body>
 <div class="sidebar">
-    <div class="sidebar-header"><div class="logo-icon">C</div> <span>CONMETAL</span></div>
+    <div class="sidebar-header">
+        <img src="logo.png" class="logo-img" alt="Logo">
+        <span>CONMETAL</span>
+    </div>
     <nav class="nav-links">
         <a href="index.html" class="nav-item"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg> Ingreso OT</a>
         <a href="ot_listado.html" class="nav-item active"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg> Visualizaciones OT</a>
@@ -111,6 +113,7 @@
                         <td>${ot.fecha}</td><td>${ot.maquina}</td><td>${ot.encargado}</td>
                         <td><span class="badge ${estadoClass}">${estadoTexto}</span></td>
                         <td>
+                            <button class="btn-icon btn-pdf" onclick="location.href='${API}/exportar-pdf/${ot.ot}/'" title="PDF">📄</button>
                             <button class="btn-icon btn-excel" onclick="location.href='${API}/exportar-excel/${ot.ot}/'" title="Excel">📥</button>
                             <a href="index.html?editar=${ot.ot}" class="btn-icon btn-edit" title="Editar">✏️</a>
                             <button class="btn-icon btn-del" onclick="del('${ot.ot}')" title="Eliminar">🗑️</button>
@@ -121,14 +124,12 @@
         } catch(e) { document.getElementById('loading').innerHTML = 'Error conexión'; }
     }
     
-    // LÓGICA DEL BUSCADOR EN TIEMPO REAL
     document.getElementById('searchInput').addEventListener('input', function(e) {
         const term = e.target.value.toLowerCase();
         const rows = document.querySelectorAll('#tbody tr');
         let visibleCount = 0;
 
         rows.forEach(row => {
-            // Buscamos en todo el texto de la fila (incluye OT, fecha, maquina, encargado y estado)
             const text = row.innerText.toLowerCase();
             if(text.includes(term)) {
                 row.style.display = '';
@@ -137,8 +138,6 @@
                 row.style.display = 'none';
             }
         });
-        
-        // Actualizamos el contador total según lo que se ve
         document.getElementById('total').textContent = visibleCount;
     });
 
@@ -148,7 +147,6 @@
                 const res = await fetch(`${API}/eliminar-ot/${id}/`, {method:'POST'});
                 if(res.ok) {
                     document.getElementById(`r-${id}`).remove();
-                    // Actualizar contador tras borrar
                     const currentTotal = parseInt(document.getElementById('total').textContent);
                     document.getElementById('total').textContent = Math.max(0, currentTotal - 1);
                 } else alert("No se pudo eliminar");
