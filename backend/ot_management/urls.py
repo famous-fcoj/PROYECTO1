@@ -7,7 +7,13 @@ urlpatterns = [
     path('api/detalle-ot/<str:ot_num>/', views.detalle_ot_api, name='api_detalle'),
     path('api/eliminar-ot/<str:ot_num>/', views.eliminar_ot_api, name='api_eliminar'),
     path('api/ot-resumen/', views.ot_resumen_api, name='ot_resumen_api'),
-    path('api/exportar-excel/<str:ot_num>/', views.exportar_ot_excel, name='exportar_excel'),
     path('api/siguiente-folio/', views.siguiente_folio_api, name='siguiente_folio'),
+    
+    # Exportaciones individuales
+    path('api/exportar-excel/<str:ot_num>/', views.exportar_ot_excel, name='exportar_excel'),
     path('api/exportar-pdf/<str:ot_num>/', views.exportar_ot_pdf, name='exportar_pdf'),
+    
+    # NUEVAS Exportaciones masivas
+    path('api/exportar-todas-excel/', views.exportar_todas_excel, name='exportar_todas_excel'),
+    path('api/exportar-todas-pdf/', views.exportar_todas_pdf, name='exportar_todas_pdf'),
 ]
